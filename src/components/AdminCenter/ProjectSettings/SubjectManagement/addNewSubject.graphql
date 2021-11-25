@@ -1,0 +1,5 @@
+mutation AddNewSubject($data: AcademicSubjectInput!){
+    createAcademicSubject(data: $data){
+        title, description
+    }
+}

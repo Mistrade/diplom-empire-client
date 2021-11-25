@@ -1,0 +1,5 @@
+mutation AddNewSubSubject($data: SubSubjectInput!){
+    createNewSubSubject(data: $data){
+        title, description, parentID
+    }
+}

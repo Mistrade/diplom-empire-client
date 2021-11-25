@@ -1,0 +1,23 @@
+query GetTaskInfo($id: ID!){
+    taskInfo(id: $id) {
+        creatorID {
+            name
+            surname
+            email
+        }
+        title
+        description
+        academicSubject {
+            title
+            subSubjects {
+                title
+                description
+            }
+        }
+        taskExecutor {
+            name
+            surname
+            phone
+        }
+    }
+}

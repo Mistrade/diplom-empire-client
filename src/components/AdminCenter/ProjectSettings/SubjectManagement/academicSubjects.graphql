@@ -1,0 +1,5 @@
+query AcademicSubjectsList{
+    academicSubjects{
+        title, description, id
+    }
+}
