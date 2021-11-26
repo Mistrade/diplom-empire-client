@@ -1,9 +1,10 @@
 import React, { useState } from 'react'
-import { RouteComponentProps, withRouter } from 'react-router-dom'
+import { RouteComponentProps, useHistory, withRouter } from 'react-router-dom'
 import { useSubSubjectsQuery } from './graphqlTypes/subsubject'
 import { useAddNewSubSubjectMutation } from './graphqlTypes/addNewSubSubject'
 
 const PushSubSubjectsToAcademicSubject: React.FC<RouteComponentProps<{ id: string }>> = ( { match } ) => {
+  const history = useHistory()
   const [item, setItem] = useState( '' )
   const alreadyExists = useSubSubjectsQuery( {
     variables: {
@@ -16,8 +17,13 @@ const PushSubSubjectsToAcademicSubject: React.FC<RouteComponentProps<{ id: strin
 
   return (
     <>
+      <span onClick={() => history.goBack()}>{'<-----'} Вернуться назад</span>
       <h2>Добавьте новые теги к предмету: {match.params.id}</h2>
 
+
+      {alreadyExists.networkStatus === 8 ? (
+        <p>Кажется, вы не подключены к интернету!</p>
+      ) : <></>}
       {!!alreadyExists.data?.subSubjects?.length ? (
         <>
           <h3>Существующие теги по этому предмету</h3>

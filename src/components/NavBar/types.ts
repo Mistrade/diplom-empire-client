@@ -27,6 +27,7 @@ export interface NavTaskManagerItem {
 export interface NavAdminCenterItem {
   type: "admin-center",
   items: Array<{
+    icon: React.ReactNode,
     title: string,
     href: string,
     rule: ['admin'],
