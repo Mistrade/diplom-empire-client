@@ -6,6 +6,11 @@ import { NavBar } from './components/NavBar/NavBar'
 import { Route, Switch } from 'react-router-dom'
 import TaskManager from './components/TaskManager/TaskManager'
 import AdminCenter from './components/AdminCenter/AdminCenter'
+import { LocalizationProvider } from '@mui/lab'
+import DateAdapter from '@mui/lab/AdapterMoment'
+import moment from 'moment'
+import 'moment/locale/ru'
+
 
 function App() {
   const { data, loading, error } = useGetTaskInfoQuery( {
@@ -15,22 +20,23 @@ function App() {
     // pollInterval: 1000
   } )
 
-
   return (
-    <div className="App">
-      <Layout
-        header={() => <Header/>}
-        navbar={() => (
-          <NavBar/>
-        )}
-        content={() => (
-          <Switch>
-            <Route path={'/task-manager'} render={() => <TaskManager/>}/>
-            <Route path={'/admin-center'} render={() => <AdminCenter/>}/>
-          </Switch>
-        )}
-      />
-    </div>
+    <LocalizationProvider dateAdapter={DateAdapter} locale={moment().locale()}>
+      <div className="App">
+        <Layout
+          header={() => <Header/>}
+          navbar={() => (
+            <NavBar/>
+          )}
+          content={() => (
+            <Switch>
+              <Route path={'/task-manager'} render={() => <TaskManager/>}/>
+              <Route path={'/admin-center'} render={() => <AdminCenter/>}/>
+            </Switch>
+          )}
+        />
+      </div>
+    </LocalizationProvider>
   )
 }
 
