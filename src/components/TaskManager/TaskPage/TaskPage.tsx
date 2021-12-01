@@ -1,5 +1,10 @@
 import React, { useEffect, useState } from 'react'
-import { CreateTaskSteps, CurrentStepCreateTask, FormState } from '../CreateNewTask/CreateNewTask'
+import {
+  CreateTaskSteps,
+  CurrentStepCreateTask,
+  FileDataProps,
+  FormState, ModalConfigProps
+} from '../CreateNewTask/CreateNewTask'
 import {
   Accordion, AccordionSummary,
   Avatar,
@@ -20,6 +25,9 @@ import EventNoteIcon from '@mui/icons-material/EventNote'
 import { Add, Close, Download, PictureAsPdf } from '@mui/icons-material'
 import { FileImageAvatar } from '../../Files/FileImageAvatar'
 import { FileList } from '../../Lists/FileList'
+import { FileMetaInformation, getFileExt } from '../../../common/uploadFileHandler'
+import { theme } from '../../../index'
+import { FileItemRender } from '../../FileUploader/FileUploader'
 
 interface TaskPageProps {
   mode: 'preview' | 'view',
@@ -28,7 +36,9 @@ interface TaskPageProps {
   previewOptions?: {
     current: CurrentStepCreateTask,
     useHighlighter: boolean
-  }
+  },
+  modal?: ModalConfigProps,
+  setModal?: React.Dispatch<React.SetStateAction<ModalConfigProps>>
 }
 
 interface UserInfo {
@@ -58,42 +68,13 @@ export const initialUser: UserInfo = {
 
 
 export const TaskPage: React.FC<TaskPageProps> = ( {
+                                                     modal, setModal,
                                                      mode,
                                                      data,
                                                      userInfo = initialUser,
                                                      previewOptions
                                                    } ) => {
   const [state, setState] = useState<null | CreateTaskSteps>( null )
-  const [hintStatus, setHintStatus] = useState<boolean>( true )
-  const titles = {
-    preview: 'Предпросмотр задания',
-    view: 'Задание \'' + data.taskName + '\''
-  }
-
-  useEffect( () => {
-    console.log( state )
-  }, [state] )
-
-  const files: Array<FileProps> = [
-    {
-      ext: 'jpg',
-      title: 'Изображение от 12.02.2021 321321321',
-      url: '',
-      size: 21352102
-    },
-    {
-      ext: 'pdf',
-      title: 'Требования к оформлению задач',
-      url: '',
-      size: 18900000
-    },
-    {
-      ext: 'png',
-      title: 'Скриншот экрана',
-      url: '',
-      size: 5789400
-    }
-  ]
 
   useEffect( () => {
     if( previewOptions && previewOptions.useHighlighter ) {
@@ -111,6 +92,61 @@ export const TaskPage: React.FC<TaskPageProps> = ( {
     borderRadius: 12,
     background: 'rgba(220,220,220,.17)',
     ...defaultStyle
+  }
+
+  const FileItem: React.FC<{ item: FileDataProps }> = ( { item } ) => {
+    return (
+      <ListItem>
+        <Tooltip title={item.file.name} placement={'top'} arrow={true}>
+          <ListItemAvatar
+            sx={{
+              position: 'relative',
+              maxWidth: 60,
+              maxHeight: 60,
+              overflow: 'hidden',
+              border: item.data?.category === 'image' ? `1px solid ${theme.palette.divider}` : '',
+              mr: 2,
+              cursor: 'pointer',
+              display: 'flex',
+              justifyContent: 'center',
+              alignItems: 'center'
+            }}
+          >
+            {item.data?.category === 'image' ? (
+              <Tooltip
+                sx={{ fontSize: 20 }}
+                arrow={true}
+                placement={'top'}
+                title={'Нажмите для просмотра изображения'}
+              >
+                <img
+                  style={{ objectFit: 'contain', position: 'relative' }}
+                  width={'60px'}
+                  height={'60px'}
+                  onClick={() => {
+                    // setModal( {
+                    //   isOpen: true,
+                    //   imageContent: URL.createObjectURL( item )
+                    // } )
+                  }}
+                  src={URL.createObjectURL( item.file )}
+                />
+              </Tooltip>
+            ) : (
+              <FileImageAvatar ext={item.data?.semanticExt}/>
+            )}
+          </ListItemAvatar>
+        </Tooltip>
+        <ListItemText>
+          <Typography variant={'subtitle1'}>
+            {item.file.name.length > 24 ? item.file.name.substring( 0, 24 ) + '...' : item.file.name}
+          </Typography>
+          <Typography variant={'subtitle2'}>
+            {toMegaByte( item.file.size ).toFixed( 2 ) + ' МБайт'}
+          </Typography>
+        </ListItemText>
+      </ListItem>
+    )
   }
 
   return (
@@ -203,7 +239,7 @@ export const TaskPage: React.FC<TaskPageProps> = ( {
             <Grid
               item xs={5}
               style={{
-                border: '1px solid rgba(190,190,190,.2)',
+                border: `1px solid ${theme.palette.divider}`,
                 padding: 8,
                 borderRadius: 8,
                 height: 'fit-content'
@@ -213,23 +249,24 @@ export const TaskPage: React.FC<TaskPageProps> = ( {
                 Прикрепленные файлы
               </Typography>
               <List>
-                {files.map( item => (
-                  <ListItem>
-                    <Tooltip title={item.title} placement={'top'} arrow={true}>
-                      <ListItemAvatar>
-                        <FileImageAvatar ext={item.ext}/>
-                      </ListItemAvatar>
-                    </Tooltip>
-                    <ListItemText>
-                      <Typography variant={'subtitle1'}>
-                        {item.title.length > 24 ? item.title.substring( 0, 24 ) + '...' : item.title}
-                      </Typography>
-                      <Typography variant={'subtitle2'}>
-                        {toMegaByte( item.size ).toFixed( 2 ) + ' МБайт'}
-                      </Typography>
-                    </ListItemText>
-                  </ListItem>
-                ) )}
+                {data.files?.length ? (
+                  <>
+                    {data.files.map( ( item, index ) => (
+                      <FileItemRender
+                        data={item}
+                        setModal={setModal}
+                        mode={'view'}
+                        disableRenderDivider={index === ( data.files?.length || 0 ) - 1}
+                      />
+                    ) )}
+                  </>
+                ) : (
+                  <>
+                    <Typography variant={'body1'} textAlign={'center'}>
+                      Здесь будут расположены файлы.
+                    </Typography>
+                  </>
+                )}
               </List>
             </Grid>
           </Grid>

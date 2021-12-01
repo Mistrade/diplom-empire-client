@@ -1,8 +1,8 @@
 export interface FileMetaInformation {
   type: string,
   ext: string,
-  semanticExt: 'png' | 'jpg' | 'pdf' | 'doc' | 'docx' | 'xls' | 'ppt' | 'txt',
-  category: 'image' | 'document' | 'video' | 'sheets' | 'presentation' | 'text'
+  semanticExt: 'png' | 'jpg' | 'pdf' | 'doc' | 'docx' | 'xls' | 'ppt' | 'txt' | 'unknown',
+  category: 'image' | 'document' | 'video' | 'sheets' | 'presentation' | 'text' | 'unknown'
 }
 
 export const fileAccessListCategory: Array<FileMetaInformation> = [
@@ -18,7 +18,12 @@ export const fileAccessListCategory: Array<FileMetaInformation> = [
 export const getFileExt = ( file: File ) => {
   const { type } = file
   return {
-    data: fileAccessListCategory.find( item => item.type === type ),
+    data: fileAccessListCategory.find( item => item.type === type ) || {
+      type: 'unknown',
+      ext: 'unknown',
+      semanticExt: 'unknown',
+      category: 'unknown'
+    },
     file
   }
 }

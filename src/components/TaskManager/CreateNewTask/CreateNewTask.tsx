@@ -13,11 +13,11 @@ import {
   Autocomplete,
   Box,
   Button,
-  ButtonGroup, Chip,
+  ButtonGroup, Chip, Fade,
   FormControl, Grid, IconProps,
   Input,
   InputLabel,
-  MenuItem,
+  MenuItem, Modal,
   Select, Step, StepContent, StepIcon, StepLabel, Stepper, TextField, Typography
 } from '@mui/material'
 import { Add, AddCircle, CheckCircle, Close, UploadFile } from '@mui/icons-material'
@@ -27,8 +27,9 @@ import { TaskHeaderForm } from './Steps/TaskHeader'
 import { Container } from '../../Container/Container'
 import { TaskBodyForm } from './Steps/TaskBodyForm'
 import { MyStepper } from '../../Lists/MyStepper'
+import { FileMetaInformation } from '../../../common/uploadFileHandler'
 
-type UnboxedArray<T> = T extends Array<infer U> ? U : T
+export type UnboxedArray<T> = T extends Array<infer U> ? U : T
 
 export interface CurrentStepCreateTask {
   name: CreateTaskSteps,
@@ -48,14 +49,24 @@ export interface FormState {
     timestamp: any
     format: any
   },
-  files: null | Array<File>,
+  files: null | Array<FileDataProps>,
+}
+
+export interface FileDataProps {
+  file: File,
+  data: FileMetaInformation,
+  preview: {
+    src: null | string
+  }
 }
 
 export type CreateTaskSteps = 'task-header' | 'task-body' | 'task-additional'
 
-function SendIcon() {
-  return null
+export interface ModalConfigProps {
+  isOpen: boolean,
+  src: string
 }
+
 
 const CreateNewTask: React.FC = () => {
   const [formState, setFormState] = useState<FormState>( {
@@ -81,9 +92,14 @@ const CreateNewTask: React.FC = () => {
   const getCurrentIndex = ( name: CreateTaskSteps ): number => {
     return steps.findIndex( ( item: CreateTaskSteps ) => item === name )
   }
+
   const [current, setCurrent] = useState<CurrentStepCreateTask>( {
     name: 'task-header',
     index: getCurrentIndex( 'task-header' )
+  } )
+  const [modal, setModal] = useState<ModalConfigProps>( {
+    isOpen: false,
+    src: ''
   } )
 
   const stepsContent: Array<{ title: string, description: string, current: CreateTaskSteps }> = [
@@ -103,73 +119,118 @@ const CreateNewTask: React.FC = () => {
   ]
 
   return (
-    <Grid container spacing={4}>
-      <Grid item xs={12} mb={2}>
-        <Box sx={{ mt: 4 }}>
-          <Typography variant={'h2'} fontSize={30} textAlign={'left'} mb={1}>
-            Приступим к публикации новой задачи?
-          </Typography>
-          <Typography variant={'subtitle1'} textAlign={'left'}>
-            Это займет не более 2 минут и его сразу увидят более 10000 экспертов на портале.
-          </Typography>
-        </Box>
-      </Grid>
-      <Grid item xs={12}>
-        <Stepper
-          sx={{ fontSize: 'white' }}
-          className={style.stepper}
-          orientation={'horizontal'} alternativeLabel
-          activeStep={steps.findIndex( ( item ) => item === current.name )}
-        >
-          {stepsContent.map( ( item, index ) => {
-            const ListCustomIcon: React.FC<{ size: IconProps['fontSize'] }> = ( { size } ) => {
-              if( index === current.index ) {
-                return <AddCircle color={'secondary'} fontSize={size}/>
-              } else if( index < current.index ) {
-                return <CheckCircle color={'success'} fontSize={size}/>
-              } else {
-                return <AddCircle color={'disabled'} fontSize={size}/>
+    <>
+      <Grid container spacing={4}>
+        <Grid item xs={12} mb={2}>
+          <Box sx={{}}>
+            <Typography variant={'h2'} fontSize={30} textAlign={'left'} mb={1}>
+              Приступим к публикации новой задачи?
+            </Typography>
+            <Typography variant={'subtitle1'} textAlign={'left'}>
+              Это займет не более 2 минут и его сразу увидят более 10000 экспертов на портале.
+            </Typography>
+          </Box>
+        </Grid>
+        <Grid item xs={12}>
+          <Stepper
+            sx={{ fontSize: 'white' }}
+            className={style.stepper}
+            orientation={'horizontal'} alternativeLabel
+            activeStep={steps.findIndex( ( item ) => item === current.name )}
+          >
+            {stepsContent.map( ( item, index ) => {
+              const ListCustomIcon: React.FC<{ size: IconProps['fontSize'] }> = ( { size } ) => {
+                if( index === current.index ) {
+                  return <AddCircle color={'secondary'} fontSize={size}/>
+                } else if( index < current.index ) {
+                  return <CheckCircle color={'success'} fontSize={size}/>
+                } else {
+                  return <AddCircle color={'disabled'} fontSize={size}/>
+                }
               }
-            }
-            return (
-              <Step key={item.title}>
-                <StepLabel icon={<ListCustomIcon size={'large'}/>} sx={{ mt: -0.5 }}>
-                  <Typography variant={'subtitle1'}>
-                    {item.title}
-                  </Typography>
-                  <Typography variant={'subtitle2'}>
-                    {item.description}
-                  </Typography>
-                </StepLabel>
-              </Step>
-            )
-          } )}
-        </Stepper>
-      </Grid>
-      <Grid item xs={4}>
-        <Container variant={'section'}>
-          {current.name === 'task-header' ? (
-            <TaskHeaderForm
-              formState={formState}
-              setFormState={setFormState}
-              setCurrent={setCurrent}
-              getCurrentIndex={getCurrentIndex}
+              return (
+                <Step key={item.title}>
+                  <StepLabel icon={<ListCustomIcon size={'large'}/>} sx={{ mt: -0.5 }}>
+                    <Typography variant={'subtitle1'}>
+                      {item.title}
+                    </Typography>
+                    <Typography variant={'subtitle2'}>
+                      {item.description}
+                    </Typography>
+                  </StepLabel>
+                </Step>
+              )
+            } )}
+          </Stepper>
+        </Grid>
+        <Grid item xs={4}
+              sx={{ transition: 'all .3s ease-in' }}>
+          <Container variant={'section'}>
+            {current.name === 'task-header' ? (
+              <TaskHeaderForm
+                formState={formState}
+                setFormState={setFormState}
+                setCurrent={setCurrent}
+                getCurrentIndex={getCurrentIndex}
+              />
+            ) : current.name === 'task-body' ? (
+              <TaskBodyForm
+                modal={modal}
+                setModal={setModal}
+                formState={formState}
+                setFormState={setFormState}
+                setCurrent={setCurrent}
+                getCurrentIndex={getCurrentIndex}
+              />
+            ) : <></>}
+          </Container>
+        </Grid>
+        <Grid item xs={8}>
+            <TaskPage
+              modal={modal}
+              setModal={setModal}
+              mode={'preview'}
+              data={formState}
+              userInfo={initialUser}
+              previewOptions={{ current, useHighlighter: true }}
             />
-          ) : current.name === 'task-body' ? (
-            <TaskBodyForm
-              formState={formState}
-              setFormState={setFormState}
-              setCurrent={setCurrent}
-              getCurrentIndex={getCurrentIndex}
-            />
-          ) : <></>}
-        </Container>
+        </Grid>
       </Grid>
-      <Grid item xs={8}>
-        <TaskPage mode={'preview'} data={formState} userInfo={initialUser}
-                  previewOptions={{ current, useHighlighter: true }}/>
-      </Grid>
-    </Grid>
+      <Modal
+        open={modal.isOpen}
+        onBackdropClick={() => setModal( { isOpen: false, src: '' } )}
+      >
+        <Fade in={modal.isOpen}>
+          <Box sx={{
+            position: 'absolute' as 'absolute',
+            top: '50%',
+            left: '50%',
+            transform: 'translate(-50%, -50%)',
+            width: '80vw',
+            height: '45vw',
+            bgcolor: 'background.paper',
+            border: '2px solid #000',
+            boxShadow: 24,
+            p: 4,
+            outline: 0
+          }}>
+
+            <Box sx={{ width: '100%', height: '100%', position: 'relative' }}>
+              <img
+                src={modal.src}
+                loading={'eager'}
+                style={{
+                  objectFit: 'contain',
+                  width: 'inherit',
+                  height: 'inherit',
+                  position: 'relative'
+                }}
+              />
+            </Box>
+          </Box>
+        </Fade>
+      </Modal>
+    </>
   )
 }
 

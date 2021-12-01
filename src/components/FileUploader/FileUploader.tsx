@@ -1,11 +1,11 @@
 import {
   Box, Divider,
   Fade,
-  FormControl,
+  FormControl, IconButton,
   List,
   ListItem,
   ListItemAvatar, ListItemText,
-  Modal,
+  Modal, Tooltip,
   Typography
 } from '@mui/material'
 import style from '../TaskManager/CreateNewTask/style.module.sass'
@@ -21,22 +21,120 @@ import { useSnackbar } from 'notistack'
 import { toMegaByte } from '../TaskManager/TaskPage/TaskPage'
 import { theme } from '../../index'
 import moment from 'moment'
+import { FileDataProps, ModalConfigProps } from '../TaskManager/CreateNewTask/CreateNewTask'
 
 interface FileUploaderProps {
-  fileList: Array<File>,
-  setFileList: ( list: Array<File> ) => void,
+  fileList: Array<FileDataProps>,
+  setFileList: ( list: Array<FileDataProps> ) => void,
   maxSizeOnFile?: number,
   maxFileCount?: number,
   minSizeOnFile?: number,
   acceptFileExtensions: Array<FileMetaInformation>,
+  modal?: ModalConfigProps,
+  setModal?: React.Dispatch<React.SetStateAction<ModalConfigProps>>
 }
 
-interface ModalConfigProps {
-  isOpen: boolean,
-  imageContent: string
+interface FileITemRenderProps {
+  data: FileDataProps,
+  mode: 'view' | 'preview',
+  setModal?: React.Dispatch<React.SetStateAction<{ isOpen: boolean, src: string }>>,
+  removeHandler?: () => any
+  disableRenderDivider?: boolean
+}
+
+
+export const FileItemRender: React.FC<FileITemRenderProps> = ( {
+                                                                 data,
+                                                                 mode,
+                                                                 setModal,
+                                                                 removeHandler,
+                                                                 disableRenderDivider
+                                                               } ) => {
+
+  return (
+    <>
+      <ListItem sx={{mb: 1, mt: 1}}>
+        <ListItemAvatar
+          sx={{
+            position: 'relative',
+            maxWidth: 60,
+            maxHeight: 60,
+            overflow: 'hidden',
+            border: data.data?.category === 'image' ? `1px solid ${theme.palette.divider}` : '',
+            mr: 2,
+            cursor: 'pointer',
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center'
+          }}
+        >
+          {data.data?.category === 'image' && !!data.preview.src ? (
+            <Tooltip
+              sx={{ fontSize: 20 }}
+              arrow={true}
+              placement={'top'}
+              title={`Нажмите для просмотра ${data.file.name}`}
+            >
+              <img
+                style={{ objectFit: 'contain', position: 'relative' }}
+                width={'60px'}
+                height={'60px'}
+                onClick={() => {
+                  setModal && setModal( {
+                    isOpen: true,
+                    src: data.preview.src || ''
+                  } )
+                }}
+                src={data.preview.src}
+              />
+            </Tooltip>
+          ) : (
+            <FileImageAvatar ext={data.data?.semanticExt}/>
+          )}
+        </ListItemAvatar>
+        <ListItemText>
+          <Box sx={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            width: '100%',
+            alignItems: 'center',
+            flexDirection: 'row',
+            flexWrap: 'nowrap'
+          }}>
+
+            <Box>
+              <Typography variant={'h6'} component={'span'} fontSize={16}>
+                {data.file.name.length > 24 ? data.file.name.substring( 0, 24 ) + '...' : data.file.name}
+              </Typography>
+              <Typography fontSize={14}>
+                {moment( data.file.lastModified ).format( 'DD.MM.YYYY HH:mm:ss' ) || ''} / {toMegaByte( data.file.size ).toFixed( 2 )} МБайт
+              </Typography>
+            </Box>
+            {mode === 'preview' ? (
+              <Box sx={{ ml: 2 }}>
+                <IconButton>
+                  <RemoveCircle
+                    sx={{ cursor: 'pointer' }}
+                    color={'disabled'}
+                    fontSize={'large'}
+                    onClick={() => removeHandler && removeHandler()}
+                  />
+                </IconButton>
+              </Box>
+            ) : <></>}
+          </Box>
+        </ListItemText>
+      </ListItem>
+      {!disableRenderDivider ? (
+        <Divider sx={{ width: '100%' }}/>
+      ) : <></>}
+    </>
+  )
 }
 
 export const FileUploader: React.FC<FileUploaderProps> = ( {
+                                                             modal,
+                                                             setModal,
                                                              fileList = [],
                                                              setFileList = Function.prototype,
                                                              maxFileCount = 8,
@@ -45,14 +143,10 @@ export const FileUploader: React.FC<FileUploaderProps> = ( {
                                                              acceptFileExtensions = fileAccessListCategory
                                                            } ) => {
   const ref = useRef<HTMLInputElement>( null )
-  const [modal, setModal] = useState<ModalConfigProps>( {
-    isOpen: false,
-    imageContent: ''
-  } )
 
   const { enqueueSnackbar } = useSnackbar()
 
-  const filteredList = ( list: Array<File> ): Array<File> => {
+  const filteredList = ( list: Array<File> ): Array<FileDataProps> => {
     const htmlExtensions = acceptFileExtensions?.map( item => item.type )
     let result: Array<File> = list.slice( 0, maxFileCount - fileList.length )
 
@@ -85,9 +179,9 @@ export const FileUploader: React.FC<FileUploaderProps> = ( {
       newList = newList.filter( file => {
         let res = true
         fileList.forEach( item => {
-          if( item.name === file.name && item.size === file.size ) {
+          if( item.file.name === file.name && item.file.size === file.size ) {
             res = false
-            enqueueSnackbar( `Файл ${item.name} - был удален, так как он уже содержится в списке загрузок`, { variant: 'error' } )
+            enqueueSnackbar( `Файл ${item.file.name} - был удален, так как он уже содержится в списке загрузок`, { variant: 'error' } )
             return
           }
         } )
@@ -96,7 +190,17 @@ export const FileUploader: React.FC<FileUploaderProps> = ( {
       } )
     }
 
-    return [...fileList, ...newList]
+    const resultList: Array<FileDataProps> = newList.map( item => {
+      const data = getFileExt( item )
+      return {
+        ...data,
+        preview: {
+          src: data.data.category === 'image' ? URL.createObjectURL( data.file ) : null
+        }
+      }
+    } )
+
+    return [...fileList, ...resultList]
   }
 
   const removeFileHandler = ( index: number ) => {
@@ -173,72 +277,14 @@ export const FileUploader: React.FC<FileUploaderProps> = ( {
           <FormControl sx={{ mt: 3 }}>
             <List>
               {fileList.map( ( file, index ) => {
-                const fileInfo = getFileExt( file )
                 return (
-                  <React.Fragment key={file.name}>
-                    <ListItem>
-                      <ListItemAvatar
-                        sx={{
-                          position: 'relative',
-                          maxWidth: 60,
-                          maxHeight: 60,
-                          overflow: 'hidden',
-                          border: fileInfo.data?.category === 'image' ? `1px solid ${theme.palette.divider}` : '',
-                          mr: 2,
-                          cursor: 'pointer',
-                          display: 'flex',
-                          justifyContent: 'center',
-                          alignItems: 'center'
-                        }}
-                      >
-                        {fileInfo.data?.category === 'image' ? (
-                          <img
-                            style={{ objectFit: 'contain', position: 'relative' }}
-                            width={'60px'}
-                            height={'60px'}
-                            onClick={() => {
-                              setModal( {
-                                isOpen: true,
-                                imageContent: URL.createObjectURL( file )
-                              } )
-                            }}
-                            src={URL.createObjectURL( fileInfo.file )}
-                          />
-                        ) : (
-                          <FileImageAvatar ext={fileInfo.data?.semanticExt}/>
-                        )}
-                      </ListItemAvatar>
-                      <ListItemText>
-                        <Box sx={{
-                          display: 'flex',
-                          justifyContent: 'space-between',
-                          width: '100%',
-                          alignItems: 'center',
-                          flexDirection: 'row',
-                          flexWrap: 'nowrap'
-                        }}>
-
-                          <Box>
-                            <Typography variant={'h6'} component={'span'} fontSize={16}>
-                              {file.name}
-                            </Typography>
-                            <Typography fontSize={14}>
-                              {moment( file.lastModified ).format( 'DD.MM.YYYY HH:mm:ss' ) || ''} / {toMegaByte( file.size ).toFixed( 2 )} МБайт
-                            </Typography>
-                          </Box>
-                          <Box sx={{ ml: 2 }}>
-                            <RemoveCircle
-                              sx={{ cursor: 'pointer' }}
-                              color={'disabled'}
-                              fontSize={'large'}
-                              onClick={() => removeFileHandler( index )}
-                            />
-                          </Box>
-                        </Box>
-                      </ListItemText>
-                    </ListItem>
-                    <Divider sx={{ width: '100%' }}/>
-                  </React.Fragment>
+                  <FileItemRender
+                    data={file}
+                    mode={'preview'}
+                    setModal={setModal}
+                    removeHandler={() => removeFileHandler( index )}
+                    disableRenderDivider={index === fileList.length - 1}
+                  />
                 )
               } )}
               {/*<img src={file}/>*/}
@@ -246,40 +292,6 @@ export const FileUploader: React.FC<FileUploaderProps> = ( {
           </FormControl>
         ) : <></>}
       </FormControl>
-      <Modal
-        open={modal.isOpen}
-        onBackdropClick={() => setModal( { isOpen: false, imageContent: '' } )}
-      >
-        <Fade in={modal.isOpen}>
-          <Box sx={{
-            position: 'absolute' as 'absolute',
-            top: '50%',
-            left: '50%',
-            transform: 'translate(-50%, -50%)',
-            width: '80vw',
-            height: '45vw',
-            bgcolor: 'background.paper',
-            border: '2px solid #000',
-            boxShadow: 24,
-            p: 4,
-            outline: 0
-          }}>
-
-            <Box sx={{ width: '100%', height: '100%', position: 'relative' }}>
-              <img
-                src={modal.imageContent}
-                loading={'eager'}
-                style={{
-                  objectFit: 'contain',
-                  width: 'inherit',
-                  height: 'inherit',
-                  position: 'relative'
-                }}
-              />
-            </Box>
-          </Box>
-        </Fade>
-      </Modal>
     </>
   )
 }

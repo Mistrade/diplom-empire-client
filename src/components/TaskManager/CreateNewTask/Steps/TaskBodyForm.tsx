@@ -1,5 +1,10 @@
 import React from 'react'
-import { CreateTaskSteps, CurrentStepCreateTask, FormState } from '../CreateNewTask'
+import {
+  CreateTaskSteps,
+  CurrentStepCreateTask,
+  FormState,
+  ModalConfigProps
+} from '../CreateNewTask'
 import { Box, Button, ButtonGroup, FormControl, TextField, Typography } from '@mui/material'
 import { Press } from '../../../Buttons/Press'
 import { fileAccessListCategory } from '../../../../common/uploadFileHandler'
@@ -9,10 +14,14 @@ interface TaskBodyProps {
   formState: FormState,
   setFormState: React.Dispatch<React.SetStateAction<FormState>>,
   setCurrent: React.Dispatch<React.SetStateAction<CurrentStepCreateTask>>,
-  getCurrentIndex: ( name: CreateTaskSteps ) => number
+  getCurrentIndex: ( name: CreateTaskSteps ) => number,
+  modal?: ModalConfigProps,
+  setModal?: React.Dispatch<React.SetStateAction<ModalConfigProps>>
 }
 
 export const TaskBodyForm: React.FC<TaskBodyProps> = ( {
+                                                         modal,
+                                                         setModal,
                                                          formState,
                                                          setFormState,
                                                          setCurrent,
@@ -51,6 +60,8 @@ export const TaskBodyForm: React.FC<TaskBodyProps> = ( {
           fileList={formState.files || []}
           setFileList={( data ) => setFormState( prev => ( { ...prev, files: data } ) )}
           acceptFileExtensions={fileAccessListCategory}
+          modal={modal}
+          setModal={setModal}
           maxSizeOnFile={5000000}
           maxFileCount={8}
           minSizeOnFile={1000}

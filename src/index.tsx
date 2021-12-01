@@ -10,12 +10,13 @@ const client = new ApolloClient( {
   uri: 'http://localhost:9099/graphql',
   cache: new InMemoryCache()
 } )
-export const theme = createTheme({
+export const theme = createTheme( {
   palette: {
-    primary: {main: '#06C0d7'},
-    secondary: {main: '#B983FF'}
+    primary: { main: '#06C0d7' },
+    secondary: { main: '#B983FF' },
+    success: { main: '#2eef7c' }
   }
-})
+} )
 ReactDOM.render(
   <React.StrictMode>
     <ApolloProvider client={client}>
