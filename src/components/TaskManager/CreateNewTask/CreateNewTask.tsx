@@ -14,20 +14,26 @@ import {
   Box,
   Button,
   ButtonGroup, Chip,
-  FormControl, Grid,
+  FormControl, Grid, IconProps,
   Input,
   InputLabel,
   MenuItem,
-  Select, Step, StepContent, StepLabel, Stepper, TextField, Typography
+  Select, Step, StepContent, StepIcon, StepLabel, Stepper, TextField, Typography
 } from '@mui/material'
-import { Close, UploadFile } from '@mui/icons-material'
+import { Add, AddCircle, CheckCircle, Close, UploadFile } from '@mui/icons-material'
 import SelectInput from '@mui/material/Select/SelectInput'
 import { initialUser, TaskPage } from '../TaskPage/TaskPage'
 import { TaskHeaderForm } from './Steps/TaskHeader'
 import { Container } from '../../Container/Container'
 import { TaskBodyForm } from './Steps/TaskBodyForm'
+import { MyStepper } from '../../Lists/MyStepper'
 
 type UnboxedArray<T> = T extends Array<infer U> ? U : T
+
+export interface CurrentStepCreateTask {
+  name: CreateTaskSteps,
+  index: number
+}
 
 export interface FormState {
   taskName: string,
@@ -42,7 +48,7 @@ export interface FormState {
     timestamp: any
     format: any
   },
-  files: null | Array<string>,
+  files: null | Array<File>,
 }
 
 export type CreateTaskSteps = 'task-header' | 'task-body' | 'task-additional'
@@ -52,9 +58,6 @@ function SendIcon() {
 }
 
 const CreateNewTask: React.FC = () => {
-  const [current, setCurrent] = useState<CreateTaskSteps>( 'task-header' )
-  const subjects = useAcademicSubjectsListQuery()
-  const [getSubSubjects, subSubjects] = useSubSubjectsLazyQuery()
   const [formState, setFormState] = useState<FormState>( {
     taskName: '',
     academicSubject: null,
@@ -68,45 +71,20 @@ const CreateNewTask: React.FC = () => {
     payAttention: null,
     taskType: null,
     toDate: {
-      constructor: new Date(),
+      constructor: new Date( Date.now() + ( 1000 * 60 * 60 * 24 ) ),
       timestamp: 0,
       format: ''
     },
     files: null
   } )
-
-  const [subSubjectsList, setSubSubjectsList] = useState( subSubjects.data?.subSubjects )
-  const [subjectsList, setSubjectsList] = useState( subjects.data?.academicSubjects )
-
-  useEffect( () => {
-    setSubSubjectsList( subSubjects.data?.subSubjects )
-  }, [subSubjects.data?.subSubjects] )
-
-  useEffect( () => {
-    setSubjectsList( subjects.data?.academicSubjects )
-  }, [subjects.data?.academicSubjects] )
-
-  useEffect( () => {
-    if( formState.academicSubject ) {
-      console.log( 'academicSubjects' )
-      getSubSubjects( {
-        variables: {
-          parentID: formState.academicSubject.id
-        }
-      } ).then()
-    }
-
-    setFormState( ( prev ) => ( {
-      ...prev,
-      subSubjects: []
-    } ) )
-  }, [formState.academicSubject] )
-
-  useEffect( () => {
-    console.log( formState )
-  }, [formState.toDate] )
-
   const steps: Array<CreateTaskSteps> = ['task-header', 'task-body', 'task-additional']
+  const getCurrentIndex = ( name: CreateTaskSteps ): number => {
+    return steps.findIndex( ( item: CreateTaskSteps ) => item === name )
+  }
+  const [current, setCurrent] = useState<CurrentStepCreateTask>( {
+    name: 'task-header',
+    index: getCurrentIndex( 'task-header' )
+  } )
 
   const stepsContent: Array<{ title: string, description: string, current: CreateTaskSteps }> = [
     {
@@ -127,7 +105,7 @@ const CreateNewTask: React.FC = () => {
   return (
     <Grid container spacing={4}>
       <Grid item xs={12} mb={2}>
-        <Box sx={{ pl: 10 }}>
+        <Box sx={{ mt: 4 }}>
           <Typography variant={'h2'} fontSize={30} textAlign={'left'} mb={1}>
             Приступим к публикации новой задачи?
           </Typography>
@@ -138,13 +116,24 @@ const CreateNewTask: React.FC = () => {
       </Grid>
       <Grid item xs={12}>
         <Stepper
+          sx={{ fontSize: 'white' }}
+          className={style.stepper}
           orientation={'horizontal'} alternativeLabel
-          activeStep={steps.findIndex( ( item ) => item === current )}
+          activeStep={steps.findIndex( ( item ) => item === current.name )}
         >
           {stepsContent.map( ( item, index ) => {
+            const ListCustomIcon: React.FC<{ size: IconProps['fontSize'] }> = ( { size } ) => {
+              if( index === current.index ) {
+                return <AddCircle color={'secondary'} fontSize={size}/>
+              } else if( index < current.index ) {
+                return <CheckCircle color={'success'} fontSize={size}/>
+              } else {
+                return <AddCircle color={'disabled'} fontSize={size}/>
+              }
+            }
             return (
               <Step key={item.title}>
-                <StepLabel>
+                <StepLabel icon={<ListCustomIcon size={'large'}/>} sx={{ mt: -0.5 }}>
                   <Typography variant={'subtitle1'}>
                     {item.title}
                   </Typography>
@@ -159,12 +148,20 @@ const CreateNewTask: React.FC = () => {
       </Grid>
       <Grid item xs={4}>
         <Container variant={'section'}>
-          {current === 'task-header' ? (
-            <TaskHeaderForm formState={formState} setFormState={setFormState}
-                            setCurrent={setCurrent}/>
-          ) : current === 'task-body' ? (
-            <TaskBodyForm formState={formState} setFormState={setFormState}
-                          setCurrent={setCurrent}/>
+          {current.name === 'task-header' ? (
+            <TaskHeaderForm
+              formState={formState}
+              setFormState={setFormState}
+              setCurrent={setCurrent}
+              getCurrentIndex={getCurrentIndex}
+            />
+          ) : current.name === 'task-body' ? (
+            <TaskBodyForm
+              formState={formState}
+              setFormState={setFormState}
+              setCurrent={setCurrent}
+              getCurrentIndex={getCurrentIndex}
+            />
           ) : <></>}
         </Container>
       </Grid>

@@ -1,17 +1,22 @@
 import React from 'react'
-import { CreateTaskSteps, FormState } from '../CreateNewTask'
+import { CreateTaskSteps, CurrentStepCreateTask, FormState } from '../CreateNewTask'
 import { Box, Button, ButtonGroup, FormControl, TextField, Typography } from '@mui/material'
+import { Press } from '../../../Buttons/Press'
+import { fileAccessListCategory } from '../../../../common/uploadFileHandler'
+import { FileUploader } from '../../../FileUploader/FileUploader'
 
 interface TaskBodyProps {
   formState: FormState,
   setFormState: React.Dispatch<React.SetStateAction<FormState>>,
-  setCurrent: React.Dispatch<React.SetStateAction<CreateTaskSteps>>
+  setCurrent: React.Dispatch<React.SetStateAction<CurrentStepCreateTask>>,
+  getCurrentIndex: ( name: CreateTaskSteps ) => number
 }
 
 export const TaskBodyForm: React.FC<TaskBodyProps> = ( {
                                                          formState,
                                                          setFormState,
-                                                         setCurrent
+                                                         setCurrent,
+                                                         getCurrentIndex
                                                        } ) => {
 
 
@@ -42,14 +47,29 @@ export const TaskBodyForm: React.FC<TaskBodyProps> = ( {
             label={'Детали задания'}
           />
         </FormControl>
+        <FileUploader
+          fileList={formState.files || []}
+          setFileList={( data ) => setFormState( prev => ( { ...prev, files: data } ) )}
+          acceptFileExtensions={fileAccessListCategory}
+          maxSizeOnFile={5000000}
+          maxFileCount={8}
+          minSizeOnFile={1000}
+        />
         <FormControl sx={{ width: '100%' }}>
           <ButtonGroup fullWidth={true}>
-            <Button color={'info'} type={'button'} onClick={() => setCurrent('task-header')}>
+            <Press color={'info'} type={'button'} onClick={() => setCurrent( {
+              name: 'task-header',
+              index: getCurrentIndex( 'task-header' )
+            } )}>
               Назад
-            </Button>
-            <Button color={'primary'} type={'button'} variant={'contained'} onClick={() => setCurrent('task-additional')}>
+            </Press>
+            <Press color={'primary'} type={'button'} variant={'contained'}
+                   onClick={() => setCurrent( {
+                     name: 'task-additional',
+                     index: getCurrentIndex( 'task-additional' )
+                   } )}>
               Продолжить
-            </Button>
+            </Press>
           </ButtonGroup>
         </FormControl>
       </Box>

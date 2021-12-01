@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { CreateTaskSteps, FormState } from '../CreateNewTask/CreateNewTask'
+import { CreateTaskSteps, CurrentStepCreateTask, FormState } from '../CreateNewTask/CreateNewTask'
 import {
   Accordion, AccordionSummary,
   Avatar,
@@ -19,13 +19,14 @@ import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown'
 import EventNoteIcon from '@mui/icons-material/EventNote'
 import { Add, Close, Download, PictureAsPdf } from '@mui/icons-material'
 import { FileImageAvatar } from '../../Files/FileImageAvatar'
+import { FileList } from '../../Lists/FileList'
 
 interface TaskPageProps {
   mode: 'preview' | 'view',
   data: FormState,
   userInfo: UserInfo,
   previewOptions?: {
-    current: CreateTaskSteps,
+    current: CurrentStepCreateTask,
     useHighlighter: boolean
   }
 }
@@ -42,6 +43,10 @@ export interface FileProps {
   title: string,
   size: number,
   url: string,
+}
+
+export const toMegaByte = ( size: number ) => {
+  return size / ( 1000 * 1000 )
 }
 
 export const initialUser: UserInfo = {
@@ -90,13 +95,9 @@ export const TaskPage: React.FC<TaskPageProps> = ( {
     }
   ]
 
-  const toMegaByte = ( size: number ) => {
-    return size / ( 1000 * 1000 )
-  }
-
   useEffect( () => {
     if( previewOptions && previewOptions.useHighlighter ) {
-      setState( previewOptions.current )
+      setState( previewOptions.current.name )
     }
   }, [previewOptions] )
 
@@ -176,9 +177,9 @@ export const TaskPage: React.FC<TaskPageProps> = ( {
                 ) : <></>}
               </Box>
               <Box sx={{ display: 'flex', flexWrap: 'nowrap' }}>
-                <EventNoteIcon sx={{ mr: 1 }} color={'primary'}/>
+                <EventNoteIcon sx={{ mr: 1 }} color={'secondary'}/>
                 <Typography variant={'subtitle2'} fontSize={16}>
-                  {data.toDate?.format || '29.03.2021'}
+                  {data.toDate?.format || 'Срок сдачи работы'}
                 </Typography>
               </Box>
             </Box>
@@ -186,13 +187,13 @@ export const TaskPage: React.FC<TaskPageProps> = ( {
         </Box>
         <Box style={state === 'task-body' ? hoverStyle : defaultStyle}>
           <Grid container>
-            <Grid item xs={7} style={{paddingRight: 16}}>
+            <Grid item xs={7} style={{ paddingRight: 16 }}>
               <Typography variant={'h6'} fontSize={20} mb={1}>
                 Детали задания
               </Typography>
               {data.details ? (
                 <>
-                  <Divider style={{marginBottom: 16}}/>
+                  <Divider style={{ marginBottom: 16 }}/>
                   <Typography variant={'subtitle2'} whiteSpace={'pre-wrap'}>
                     {data.details}
                   </Typography>
@@ -201,12 +202,17 @@ export const TaskPage: React.FC<TaskPageProps> = ( {
             </Grid>
             <Grid
               item xs={5}
-              style={{ border: '1px solid rgba(190,190,190,.2)', padding: 8, borderRadius: 8, height: 'fit-content' }}
+              style={{
+                border: '1px solid rgba(190,190,190,.2)',
+                padding: 8,
+                borderRadius: 8,
+                height: 'fit-content'
+              }}
             >
               <Typography variant={'h6'} fontSize={16} textAlign={'center'}>
                 Прикрепленные файлы
               </Typography>
-              <List >
+              <List>
                 {files.map( item => (
                   <ListItem>
                     <Tooltip title={item.title} placement={'top'} arrow={true}>

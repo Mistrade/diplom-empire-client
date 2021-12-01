@@ -1,33 +1,40 @@
-import React, { useEffect, useState } from 'react'
-import { CreateTaskSteps, FormState } from '../CreateNewTask'
+import React, { useEffect, useRef, useState } from 'react'
+import { CreateTaskSteps, CurrentStepCreateTask, FormState } from '../CreateNewTask'
 import { useAcademicSubjectsListQuery } from '../../../AdminCenter/ProjectSettings/SubjectManagement/graphqlTypes/academicSubjects'
 import { useSubSubjectsLazyQuery } from '../../../AdminCenter/ProjectSettings/SubjectManagement/graphqlTypes/subsubject'
 import style from '../style.module.sass'
 import MobileDatePicker from '@mui/lab/MobileDatePicker'
 import {
-  Autocomplete,
-  Box, Button, ButtonGroup,
+  Autocomplete, Backdrop,
+  Box, Button, ButtonGroup, Fade,
   FormControl,
-  InputLabel,
-  MenuItem,
+  InputLabel, List, ListItem, ListItemAvatar,
+  MenuItem, Modal,
   Select,
   TextField,
   Typography
 } from '@mui/material'
-import { Send } from '@mui/icons-material'
+import { FileUpload, FileUploadOutlined, Send } from '@mui/icons-material'
 import { DatePicker, DateTimePicker, DesktopDatePicker } from '@mui/lab'
 import moment from 'moment'
+import { Press } from '../../../Buttons/Press'
+import { MyAutocomplete } from '../../../Inputs/TextInput'
+import { fileAccessListCategory, getFileExt } from '../../../../common/uploadFileHandler'
+import { FileImageAvatar } from '../../../Files/FileImageAvatar'
+import { FileUploader } from '../../../FileUploader/FileUploader'
 
 interface TaskHeaderProps {
   formState: FormState,
   setFormState: React.Dispatch<React.SetStateAction<FormState>>,
-  setCurrent: React.Dispatch<React.SetStateAction<CreateTaskSteps>>
+  setCurrent: React.Dispatch<React.SetStateAction<CurrentStepCreateTask>>
+  getCurrentIndex: ( name: CreateTaskSteps ) => number
 }
 
 export const TaskHeaderForm: React.FC<TaskHeaderProps> = ( {
                                                              formState,
                                                              setFormState,
-                                                             setCurrent
+                                                             setCurrent,
+                                                             getCurrentIndex
                                                            } ) => {
 
   const subjects = useAcademicSubjectsListQuery()
@@ -87,32 +94,32 @@ export const TaskHeaderForm: React.FC<TaskHeaderProps> = ( {
           />
         </FormControl>
         <FormControl sx={{ mb: 2, width: '100%' }}>
-          <InputLabel id={'set-subject'}>Выберите предмет</InputLabel>
-          <Select
-            labelId={'set-subject'}
-            id={'subject'}
-            value={formState.academicSubject?.title || ''}
-            autoWidth={true}
-            fullWidth={true}
-            label={'Выберите предмет'}
-          >
-            {subjectsList?.map( ( item ) => {
-              return (
-                <MenuItem
-                  value={item.title || ''}
-                  onClick={() => {
-                    setFormState( ( prev ) => {
-                      return {
-                        ...prev,
-                        academicSubject: item || null
-                      }
-                    } )
-                  }}>
-                  {item.title}
-                </MenuItem>
-              )
-            } )}
-          </Select>
+          <MyAutocomplete
+            multiple={false}
+            autoComplete={true}
+            loading={subjects.loading}
+            loadingText={'Загрузка списка предметов...'}
+            renderInput={( params ) => (
+              <TextField
+                {...params}
+                value={formState.academicSubject?.title || ''}
+                required={true}
+                label="Выберите предмет"
+                placeholder="Начните ввод или выберите из списка"
+                defaultValue={formState.academicSubject?.title || ''}
+              />
+            )}
+            options={subjectsList || []}
+            getOptionLabel={( option ) => option?.title || ''}
+            onChange={( e, value ) => {
+              console.log( value )
+              setFormState( prev => ( {
+                ...prev,
+                academicSubject: value || null
+              } ) )
+            }}
+
+          />
         </FormControl>
 
         {formState.academicSubject && subSubjects.data?.subSubjects && !!subSubjects.data.subSubjects.length ? (
@@ -122,7 +129,7 @@ export const TaskHeaderForm: React.FC<TaskHeaderProps> = ( {
               ваше задание увидит большее количество экспертов в области вашего
               задания. Вы можете указать до 5 тегов к одному заданию.
             </Typography>
-            <Autocomplete
+            <MyAutocomplete
               multiple
               autoComplete={true}
               loading={subSubjects.loading}
@@ -185,10 +192,13 @@ export const TaskHeaderForm: React.FC<TaskHeaderProps> = ( {
           )}
         </FormControl>
         <ButtonGroup fullWidth={true} sx={{ width: '100%' }}>
-          <Button variant="contained" type={'button'} endIcon={<Send/>}
-                  onClick={() => setCurrent( 'task-body' )}>
+          <Press variant="contained" color={'primary'} type={'button'} endIcon={<Send/>}
+                 onClick={() => setCurrent( {
+                   name: 'task-body',
+                   index: getCurrentIndex( 'task-body' )
+                 } )}>
             Продолжить
-          </Button>
+          </Press>
         </ButtonGroup>
       </Box>
     </form>

@@ -7,33 +7,34 @@ import {
   SynchronizeIcon,
   TheSunIcon
 } from '../Icons/Icons'
+import { Add, AddTask, Apps, LocalGroceryStore, Star, Subject, Wysiwyg } from '@mui/icons-material'
 
 export const navBarData: Array<NavItem> = [
   {
     type: 'task-manager',
     items: [
       {
-        icon: <CreateIcon size={25}/>,
+        icon: <AddTask fontSize={'large'} />,
         title: 'Создать задание',
         href: '/task-manager/create'
       },
       {
-        icon: <TheSunIcon size={25}/>,
+        icon: <Apps fontSize={'large'} />,
         title: 'Мои заказы',
         href: '/task-manager/my-tasks'
       },
       {
-        icon: <FolderIcon size={25}/>,
+        icon: <Wysiwyg fontSize={'large'} />,
         title: 'Витрина заданий',
         href: '/task-manager/shopwindow'
       },
       {
-        icon: <OkIcon size={25}/>,
+        icon: <Star fontSize={'large'} />,
         title: 'Рейтинги экспертов',
         href: '/task-manager/expert-rating'
       },
       {
-        icon: <DoneIcon size={25}/>,
+        icon: <LocalGroceryStore fontSize={'large'} />,
         title: 'Маркет готовых работ',
         href: '/task-manager/marketplace'
       }
@@ -41,10 +42,11 @@ export const navBarData: Array<NavItem> = [
   },
   {
     type: 'admin-center',
+    title: "Управление проектом",
     items: [
       {
-        icon: <ServicesIcon size={25}/>,
-        title: 'Управление предметами',
+        icon: <Subject fontSize={'large'} />,
+        title: 'Предметы',
         href: '/admin-center/project-settings/subject-management',
         rule: ['admin']
       }

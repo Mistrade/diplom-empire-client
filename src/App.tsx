@@ -10,6 +10,9 @@ import { LocalizationProvider } from '@mui/lab'
 import DateAdapter from '@mui/lab/AdapterMoment'
 import moment from 'moment'
 import 'moment/locale/ru'
+import { NotFoundPage } from './components/NotFoundPage/NotFoundPage'
+import { Typography } from '@mui/material'
+import { SnackbarProvider } from 'notistack'
 
 
 function App() {
@@ -21,22 +24,31 @@ function App() {
   } )
 
   return (
-    <LocalizationProvider dateAdapter={DateAdapter} locale={moment().locale()}>
-      <div className="App">
-        <Layout
-          header={() => <Header/>}
-          navbar={() => (
-            <NavBar/>
-          )}
-          content={() => (
-            <Switch>
-              <Route path={'/task-manager'} render={() => <TaskManager/>}/>
-              <Route path={'/admin-center'} render={() => <AdminCenter/>}/>
-            </Switch>
-          )}
-        />
-      </div>
-    </LocalizationProvider>
+    <SnackbarProvider
+      maxSnack={3}
+      autoHideDuration={6000}
+      anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
+    >
+      <LocalizationProvider dateAdapter={DateAdapter} locale={moment().locale()}>
+        <div className="App">
+          <Layout
+            header={() => <Header/>}
+            navbar={() => (
+              <NavBar/>
+            )}
+            content={() => (
+              <Switch>
+                <Route exact={true} path={'/'}
+                       render={() => <Typography>Главная страница</Typography>}/>
+                <Route path={'/task-manager'} render={() => <TaskManager/>}/>
+                <Route path={'/admin-center'} render={() => <AdminCenter/>}/>
+                <Route path={'*'} render={() => <NotFoundPage variant={'main'}/>}/>
+              </Switch>
+            )}
+          />
+        </div>
+      </LocalizationProvider>
+    </SnackbarProvider>
   )
 }
 

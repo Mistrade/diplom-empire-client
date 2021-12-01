@@ -25,14 +25,17 @@ export const Layout: React.FC<LayoutProps> = ( { navbar, header, content, childr
   return (
     <>
       <div className={style.mainContainer}>
-        {header()}
-        <div className={style.mainSection}>
-          <div className={style.navBarContainer}>
-            {navbar()}
+        <div className={style.prokladka}>
+
+          {header()}
+          <div className={style.mainSection}>
+            <div className={style.navBarContainer}>
+              {navbar()}
+            </div>
+            <main className={style.contentContainer}>
+              {content()}
+            </main>
           </div>
-          <main className={style.contentContainer}>
-            {content()}
-          </main>
         </div>
       </div>
     </>
