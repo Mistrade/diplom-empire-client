@@ -31,6 +31,8 @@ export type Mutation = {
   createNewSubSubject: SubSubject;
   createNewTask: Task;
   createNewUser: User;
+  deleteSubSubject?: Maybe<Result>;
+  editSubSubject?: Maybe<Result>;
 };
 
 
@@ -51,6 +53,17 @@ export type MutationCreateNewTaskArgs = {
 
 export type MutationCreateNewUserArgs = {
   data?: InputMaybe<UserInput>;
+};
+
+
+export type MutationDeleteSubSubjectArgs = {
+  id: Scalars['ID'];
+};
+
+
+export type MutationEditSubSubjectArgs = {
+  data: SubSubjectInput;
+  id: Scalars['ID'];
 };
 
 export type Query = {
@@ -80,6 +93,12 @@ export type QuerySubSubjectsArgs = {
 
 export type QueryTaskInfoArgs = {
   id: Scalars['ID'];
+};
+
+export type Result = {
+  __typename?: 'Result';
+  message?: Maybe<Scalars['String']>;
+  status?: Maybe<Scalars['Boolean']>;
 };
 
 export type SubSubject = {

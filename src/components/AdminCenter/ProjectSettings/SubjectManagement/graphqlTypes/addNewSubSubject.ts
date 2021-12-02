@@ -8,14 +8,14 @@ export type AddNewSubSubjectMutationVariables = Types.Exact<{
 }>;
 
 
-export type AddNewSubSubjectMutation = { __typename?: 'Mutation', createNewSubSubject: { __typename?: 'SubSubject', title: string, description?: string | null | undefined, parentID?: string | null | undefined } };
+export type AddNewSubSubjectMutation = { __typename?: 'Mutation', createNewSubSubject: { __typename?: 'SubSubject', title: string, id?: string | null | undefined, parentID?: string | null | undefined } };
 
 
 export const AddNewSubSubjectDocument = gql`
     mutation AddNewSubSubject($data: SubSubjectInput!) {
   createNewSubSubject(data: $data) {
     title
-    description
+    id
     parentID
   }
 }

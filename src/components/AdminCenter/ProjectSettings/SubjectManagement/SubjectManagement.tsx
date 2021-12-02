@@ -6,49 +6,84 @@ import {
 import { useHistory } from 'react-router-dom'
 import { CreateSubject } from './CreateSubject'
 import {
-  Accordion, AccordionDetails,
-  AccordionSummary, Box, Button, Chip, CircularProgress,
-  Divider, FormControl, Grid, IconButton,
+  Box,
+  Button,
+  Chip,
+  CircularProgress,
+  Dialog,
+  DialogActions,
+  DialogContentText,
+  DialogTitle,
+  Divider,
+  IconButton,
   List,
-  ListItem, ListItemAvatar, ListItemButton, ListItemIcon, ListItemSecondaryAction,
+  ListItem,
+  ListItemAvatar,
+  ListItemIcon,
+  ListItemSecondaryAction,
   ListItemText,
-  ListSubheader, Stack, TextField, Typography
+  ListSubheader,
+  Stack,
+  TextField,
+  Typography
 } from '@mui/material'
 import {
   AddCircle,
+  Check,
   CheckCircle,
   Close,
   Delete,
   Edit,
-  ExpandMore, HourglassEmpty,
-  ListAlt, Save,
-  Send
+  HourglassEmpty,
+  Save
 } from '@mui/icons-material'
-import { useSubSubjectsLazyQuery, useSubSubjectsQuery } from './graphqlTypes/subsubject'
+import { SubSubjectsQuery, useSubSubjectsLazyQuery } from './graphqlTypes/subsubject'
 import { useAddNewSubSubjectMutation } from './graphqlTypes/addNewSubSubject'
 import { theme } from '../../../../index'
 import { UnboxedArray } from '../../../TaskManager/CreateNewTask/CreateNewTask'
+import { useEditSubSubjectMutation } from './graphqlTypes/editSubSubject'
+import { useDeleteSubSubjectMutation } from './graphqlTypes/deleteSubSubject'
+import { useSnackbar } from 'notistack'
+import { TagList } from './TagList'
 
 const SubjectManagement: React.FC = () => {
+  //history hook
   const history = useHistory()
-  const { data, loading, error, refetch: refetchAcademicSubjects } = useAcademicSubjectsListQuery()
+  const { enqueueSnackbar } = useSnackbar()
+
+  //graphql query's
+  const academicSubjectsList = useAcademicSubjectsListQuery()
+
+  //graphql lazy query's
+  const [getSubSubjects, subSubjectsQueryObject] = useSubSubjectsLazyQuery( {
+    fetchPolicy: 'network-only',
+    nextFetchPolicy: 'network-only'
+  } )
+
+  //graphql mutations
+  const [addItem, addItemQuery] = useAddNewSubSubjectMutation( {} )
+  const [editSubSubjects, editSubSubjectsQueryObject] = useEditSubSubjectMutation( {} )
+  const [deleteSubSubject, deleteSubSubjectQueryObject] = useDeleteSubSubjectMutation()
+
+  //component states
   const [creator, setCreator] = useState( false )
-  const [getAlreadyExists, subQueryItem] = useSubSubjectsLazyQuery()
-  const [addItem, addItemQuery] = useAddNewSubSubjectMutation()
   const [textField, setTextField] = useState( '' )
   const [selected, setSelected] = useState<UnboxedArray<AcademicSubjectsListQuery['academicSubjects']>>( null )
   const [showAddItemInput, setShowAddItemInput] = useState<boolean>( false )
   const [filteredValue, setFilteredValue] = useState<string | null>( null )
+  const [candidateToRemoved, setCandidateToRemoved] = useState<UnboxedArray<SubSubjectsQuery['subSubjects']> | null>( null )
+  const [editingTag, setEditingTag] = useState<typeof candidateToRemoved>( null )
 
+  // useEffect( () => {
+  //   console.log( subSubjectsQueryObject.loading )
+  // }, [subSubjectsQueryObject.loading] )
+
+
+  //actions handlers
   const getTagsList = async ( item: UnboxedArray<AcademicSubjectsListQuery['academicSubjects']> ) => {
     if( item ) {
       await setSelected( item )
-      await getAlreadyExists( {
-        variables: {
-          parentID: item?.id
-        }
-      } )
-
+      await subSubjectsQueryObject.refetch( { parentID: item?.id } )
     }
   }
 
@@ -64,7 +99,7 @@ const SubjectManagement: React.FC = () => {
           }
         } )
 
-        await subQueryItem.refetch( {
+        await subSubjectsQueryObject.refetch( {
           parentID: selected.id
         } )
       } catch (e) {
@@ -75,8 +110,59 @@ const SubjectManagement: React.FC = () => {
     }
   }
 
+  const removeSubSubjectHandler = async () => {
+    if( candidateToRemoved ) {
+      try {
+        const res = await deleteSubSubject( {
+          variables: {
+            id: candidateToRemoved?.id || ''
+          }
+        } )
+
+        if( res.data?.deleteSubSubject?.message ) {
+          enqueueSnackbar( res.data.deleteSubSubject.message, { variant: !res.data?.deleteSubSubject?.status ? 'error' : 'success' } )
+        }
+
+        await setCandidateToRemoved( null )
+
+        await subSubjectsQueryObject.refetch( {
+          parentID: selected?.id
+        } )
+
+      } catch (e) {
+        console.log( e )
+      }
+    }
+  }
+
+  const editingSubSubjectHandler = async () => {
+    if( editingTag ) {
+      try {
+        const res = await editSubSubjects( {
+          variables: {
+            id: editingTag.id || '',
+            data: { title: editingTag.title, parentID: editingTag.parentID || selected?.id || '' }
+          },
+          onCompleted: async ( data ) => {
+            enqueueSnackbar( data.editSubSubject?.message, { variant: data.editSubSubject?.status ? 'success' : 'error' } )
+            await setEditingTag( null )
+            return await subSubjectsQueryObject.refetch( { parentID: `${selected?.id}` || '' } )
+          }
+        } )
+      } catch (e) {
+
+      }
+    }
+    return
+  }
+
+  // console.log( 'getList: ', subSubjectsQueryObject.loading, 'editing: ', editSubSubjectsQueryObject.loading, 'delete: ', deleteSubSubjectQueryObject.loading, 'add: ', addItemQuery.loading )
+
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column' }}>
+      {selected ? (
+        <TagList selected={selected.id}/>
+      ) : <></>}
       <Box sx={{ display: 'flex', justifyContent: 'space-between', p: 1, flexGrow: 3 }}>
         <Typography
           variant={'h1'}
@@ -97,17 +183,17 @@ const SubjectManagement: React.FC = () => {
       {creator ? (
         <>
           <CreateSubject onComplete={async () => {
-            await refetchAcademicSubjects()
+            await academicSubjectsList.refetch()
           }}/>
         </>
       ) : <></>}
 
       <>
-        {error ? (
+        {academicSubjectsList.error ? (
           <Typography variant={'h2'} fontSize={30}>
             Что-то пошло не так...
           </Typography>
-        ) : data?.academicSubjects ? (
+        ) : academicSubjectsList.data?.academicSubjects ? (
           <Stack
             divider={<Divider orientation={'vertical'}/>}
             border={`1px solid ${theme.palette.divider}`}
@@ -128,7 +214,8 @@ const SubjectManagement: React.FC = () => {
                 }}>
                   <Box sx={{ flex: '1 0 50%', p: 1 }}>
                     <Typography variant={'h6'} fontSize={18}>
-                      Список предметов, найдено: {data.academicSubjects.length}
+                      Список предметов,
+                      найдено: {academicSubjectsList.data?.academicSubjects.length}
                     </Typography>
                   </Box>
                   <Box sx={{ flex: '1 0 50%', p: 1 }}>
@@ -142,7 +229,7 @@ const SubjectManagement: React.FC = () => {
                     />
                   </Box>
                 </ListSubheader>
-                {data.academicSubjects
+                {academicSubjectsList.data?.academicSubjects
                   .filter( item => item.title.toLowerCase().includes( filteredValue?.toLowerCase() || '' ) )
                   .map( item => {
                     return (
@@ -166,7 +253,7 @@ const SubjectManagement: React.FC = () => {
               </List>
             </Box>
             <Box sx={{ flex: '1 0 50%', overflow: 'scroll' }}>
-              {subQueryItem.loading ? (
+              {subSubjectsQueryObject.loading || editSubSubjectsQueryObject.loading || deleteSubSubjectQueryObject.loading || addItemQuery.loading ? (
                 <Box sx={{
                   width: '100%',
                   height: '100%',
@@ -184,7 +271,7 @@ const SubjectManagement: React.FC = () => {
                     </Typography>
                   </Box>
                 </Box>
-              ) : !subQueryItem.error && selected ? (
+              ) : !subSubjectsQueryObject.error && selected ? (
                 <List>
                   <ListSubheader sx={{
                     borderBottom: `1px solid ${theme.palette.divider}`,
@@ -196,7 +283,7 @@ const SubjectManagement: React.FC = () => {
                     <Box sx={{ flex: '1 0 70%', p: 1 }}>
                       <Typography variant={'h6'} fontSize={18}>
                         Список тегов "{selected?.title}",
-                        найдено: {subQueryItem.data?.subSubjects?.length}
+                        найдено: {subSubjectsQueryObject.data?.subSubjects?.length || 0}
                       </Typography>
                     </Box>
                     <Box
@@ -245,34 +332,69 @@ const SubjectManagement: React.FC = () => {
                       <Divider/>
                     </>
                   ) : <></>}
-                  {subQueryItem.data?.subSubjects?.length ? subQueryItem.data?.subSubjects?.map( item => {
+                  {subSubjectsQueryObject.data?.subSubjects?.length ? subSubjectsQueryObject.data.subSubjects.map( item => {
                     return (
                       <>
-                        <ListItem sx={{
-                          display: 'flex',
-                          justifyContent: 'space-between',
-                          '&:hover': {
-                            borderRadius: 2,
-                            backgroundColor: 'rgba(240,240,240,.8)',
-                            cursor: 'pointer'
-                          }
-                        }}>
-                          <ListItemText>
-                            <Chip
-                              label={'#' + item.title}
-                              sx={{ p: 1 }}
-                            />
-                          </ListItemText>
-                          <ListItemSecondaryAction>
-                            <IconButton>
-                              <Edit color={'disabled'}/>
-                            </IconButton>
-                            <IconButton>
-                              <Delete color={'error'}/>
-                            </IconButton>
-                          </ListItemSecondaryAction>
-                        </ListItem>
-                        <Divider/>
+                        <>
+                          <ListItem sx={{
+                            display: 'flex',
+                            justifyContent: 'space-between',
+                            '&:hover': {
+                              borderRadius: 2,
+                              backgroundColor: 'rgba(240,240,240,.8)',
+                              cursor: 'pointer'
+                            }
+                          }}>
+                            {editingTag?.id === item.id ? (
+                              <>
+                                <ListItemText>
+                                  <Stack spacing={1} direction={'row'}
+                                         sx={{ alignItems: 'center' }}>
+                                    <TextField
+                                      label={'Измените название тега'}
+                                      variant={'outlined'}
+                                      value={editingTag?.title || ''}
+                                      onChange={( e ) => setEditingTag( prev => ( {
+                                        ...prev,
+                                        title: e.target.value
+                                      } ) )}
+                                    />
+                                    <IconButton>
+                                      <Check color={'primary'} onClick={editingSubSubjectHandler}/>
+                                    </IconButton>
+                                    <IconButton>
+                                      <Close color={'error'} onClick={() => setEditingTag( null )}/>
+                                    </IconButton>
+                                  </Stack>
+                                </ListItemText>
+                              </>
+                            ) : (
+                              <>
+                                <ListItemText>
+                                  <Chip
+                                    label={'#' + item.title}
+                                    sx={{ p: 1 }}
+                                  />
+                                </ListItemText>
+                                <ListItemSecondaryAction>
+                                  <IconButton>
+                                    <Edit
+                                      color={'disabled'}
+                                      onClick={() => setEditingTag( item )}
+                                    />
+                                  </IconButton>
+                                  <IconButton>
+                                    <Delete
+                                      color={'error'}
+                                      onClick={() => setCandidateToRemoved( item )}
+                                    />
+                                  </IconButton>
+                                </ListItemSecondaryAction>
+                              </>
+                            )}
+                          </ListItem>
+                          <Divider/>
+                        </>
                       </>
                     )
                   } ) : (
@@ -304,6 +426,29 @@ const SubjectManagement: React.FC = () => {
           </Stack>
         ) : ( <></> )}
       </>
+      <Dialog
+        open={!!candidateToRemoved}
+        onClose={() => setCandidateToRemoved( null )}
+      >
+        <DialogTitle>
+          Вы уверены, что хотите удалить следующие теги?
+        </DialogTitle>
+        <DialogContentText sx={{ p: 3 }}>
+          <Chip label={'#' + candidateToRemoved?.title}/>
+        </DialogContentText>
+        <DialogActions>
+          <Button
+            variant={'contained'}
+            sx={{ color: 'white' }}
+            onClick={() => setCandidateToRemoved( null )}
+          >
+            Отмена
+          </Button>
+          <Button variant={'text'} onClick={removeSubSubjectHandler}>
+            Подтвердить
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Box>
   )
 }

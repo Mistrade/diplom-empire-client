@@ -8,7 +8,7 @@ export type SubSubjectsQueryVariables = Types.Exact<{
 }>;
 
 
-export type SubSubjectsQuery = { __typename?: 'Query', subSubjects?: Array<{ __typename?: 'SubSubject', title: string, id?: string | null | undefined }> | null | undefined };
+export type SubSubjectsQuery = { __typename?: 'Query', subSubjects?: Array<{ __typename?: 'SubSubject', title: string, id?: string | null | undefined, parentID?: string | null | undefined }> | null | undefined };
 
 
 export const SubSubjectsDocument = gql`
@@ -16,6 +16,7 @@ export const SubSubjectsDocument = gql`
   subSubjects(parentID: $parentID) {
     title
     id
+    parentID
   }
 }
     `;

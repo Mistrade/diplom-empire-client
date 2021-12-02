@@ -1,0 +1,5 @@
+mutation EditSubSubject($id: ID!, $data: SubSubjectInput!){
+    editSubSubject(id: $id, data: $data){
+        status, message
+    }
+}

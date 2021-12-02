@@ -1,5 +1,5 @@
 query SubSubjects($parentID: ID!){
     subSubjects(parentID: $parentID){
-        title, id
+        title, id, parentID
     }
 }

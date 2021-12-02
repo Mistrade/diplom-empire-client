@@ -1,0 +1,5 @@
+mutation DeleteSubSubject($id: ID!){
+    deleteSubSubject(id: $id){
+        status, message
+    }
+}

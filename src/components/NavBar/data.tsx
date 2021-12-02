@@ -7,34 +7,43 @@ import {
   SynchronizeIcon,
   TheSunIcon
 } from '../Icons/Icons'
-import { Add, AddTask, Apps, LocalGroceryStore, Star, Subject, Wysiwyg } from '@mui/icons-material'
+import {
+  Add,
+  AddTask,
+  Apps,
+  LocalGroceryStore,
+  Star,
+  Subject,
+  Wysiwyg,
+  DisplaySettings
+} from '@mui/icons-material'
 
 export const navBarData: Array<NavItem> = [
   {
     type: 'task-manager',
     items: [
       {
-        icon: <AddTask fontSize={'large'} />,
+        icon: <AddTask fontSize={'large'}/>,
         title: 'Создать задание',
         href: '/task-manager/create'
       },
       {
-        icon: <Apps fontSize={'large'} />,
+        icon: <Apps fontSize={'large'}/>,
         title: 'Мои заказы',
         href: '/task-manager/my-tasks'
       },
       {
-        icon: <Wysiwyg fontSize={'large'} />,
+        icon: <Wysiwyg fontSize={'large'}/>,
         title: 'Витрина заданий',
         href: '/task-manager/shopwindow'
       },
       {
-        icon: <Star fontSize={'large'} />,
+        icon: <Star fontSize={'large'}/>,
         title: 'Рейтинги экспертов',
         href: '/task-manager/expert-rating'
       },
       {
-        icon: <LocalGroceryStore fontSize={'large'} />,
+        icon: <LocalGroceryStore fontSize={'large'}/>,
         title: 'Маркет готовых работ',
         href: '/task-manager/marketplace'
       }
@@ -42,12 +51,18 @@ export const navBarData: Array<NavItem> = [
   },
   {
     type: 'admin-center',
-    title: "Управление проектом",
+    title: 'Управление проектом',
     items: [
       {
         icon: <Subject fontSize={'large'} />,
         title: 'Предметы',
         href: '/admin-center/project-settings/subject-management',
+        rule: ['admin']
+      },
+      {
+        icon: <DisplaySettings fontSize={'large'} />,
+        title: 'Параметры заданий',
+        href: '/admin-center/project-settings/task-params',
         rule: ['admin']
       }
     ]
