@@ -33,6 +33,8 @@ export type Mutation = {
   createNewUser: User;
   deleteSubSubject?: Maybe<Result>;
   editSubSubject?: Maybe<Result>;
+  saveTaskDeliveryObject?: Maybe<Scalars['Boolean']>;
+  saveWorkType: WorkType;
 };
 
 
@@ -66,13 +68,26 @@ export type MutationEditSubSubjectArgs = {
   id: Scalars['ID'];
 };
 
+
+export type MutationSaveTaskDeliveryObjectArgs = {
+  name: Scalars['String'];
+  parent?: InputMaybe<Array<InputMaybe<Scalars['ID']>>>;
+};
+
+
+export type MutationSaveWorkTypeArgs = {
+  name?: InputMaybe<Scalars['String']>;
+};
+
 export type Query = {
   __typename?: 'Query';
   academicSubject?: Maybe<AcademicSubject>;
   academicSubjects?: Maybe<Array<AcademicSubject>>;
   getUserInfo?: Maybe<User>;
   subSubjects?: Maybe<Array<SubSubject>>;
+  taskDeliveryObjects: Array<Maybe<TaskDelivery>>;
   taskInfo?: Maybe<Task>;
+  workTypes: Array<Maybe<WorkType>>;
 };
 
 
@@ -88,6 +103,11 @@ export type QueryGetUserInfoArgs = {
 
 export type QuerySubSubjectsArgs = {
   parentID: Scalars['ID'];
+};
+
+
+export type QueryTaskDeliveryObjectsArgs = {
+  parent?: InputMaybe<Array<InputMaybe<Scalars['ID']>>>;
 };
 
 
@@ -128,6 +148,13 @@ export type Task = {
   toDate: Scalars['Int'];
 };
 
+export type TaskDelivery = {
+  __typename?: 'TaskDelivery';
+  created: Scalars['Float'];
+  id: Scalars['ID'];
+  name?: Maybe<Scalars['String']>;
+};
+
 export type TaskInput = {
   academicSubject?: InputMaybe<Scalars['ID']>;
   description: Scalars['String'];
@@ -151,4 +178,12 @@ export type UserInput = {
   name: Scalars['String'];
   phone?: InputMaybe<Scalars['String']>;
   surname: Scalars['String'];
+};
+
+export type WorkType = {
+  __typename?: 'WorkType';
+  created: Scalars['Float'];
+  id: Scalars['ID'];
+  name: Scalars['String'];
+  taskDelivery?: Maybe<Array<Maybe<TaskDelivery>>>;
 };

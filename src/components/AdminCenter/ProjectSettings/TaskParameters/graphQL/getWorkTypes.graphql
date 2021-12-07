@@ -1,0 +1,7 @@
+query GetWorkTypes{
+    workTypes{
+        id, name, created, taskDelivery{
+            id, name, created
+        }
+    }
+}

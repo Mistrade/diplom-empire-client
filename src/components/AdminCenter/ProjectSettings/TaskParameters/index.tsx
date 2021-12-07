@@ -1,5 +1,8 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { Box, Tab, Tabs, Typography } from '@mui/material'
+import { WorkTypeManagement } from './WorkTypeManagement'
+import { Route, RouteComponentProps, Switch, useHistory, withRouter } from 'react-router-dom'
+import { Task } from '@mui/icons-material'
 
 interface TaskParametersProps {
 
@@ -7,16 +10,26 @@ interface TaskParametersProps {
 
 export interface TabItemProps {
   title: string,
-  key: 'type-to-delivery-task' | 'how-to-complete-task'
+  key: 'type-to-delivery-task' | 'how-to-complete-task',
+  path: 'work-types' | 'task-delivery'
 }
 
-export const TaskParameters: React.FC<TaskParametersProps> = ( {} ) => {
+const TaskParameters: React.FC<RouteComponentProps> = ( { match } ) => {
+  const history = useHistory()
   const tabs: Array<TabItemProps> = [
-    { title: 'Варианты сдачи работы', key: 'type-to-delivery-task' },
-    { title: 'В какой программе выполнять задание', key: 'how-to-complete-task' }
+    { title: 'Варианты сдачи работы', key: 'type-to-delivery-task', path: 'work-types' },
+    {
+      title: 'В какой программе выполнять задание',
+      key: 'how-to-complete-task',
+      path: 'task-delivery'
+    }
   ]
 
   const [activeTab, setActiveTab] = useState<TabItemProps>( tabs[ 0 ] )
+
+  useEffect(() => {
+    history.push( match.path + '/' + activeTab.path)
+  }, [activeTab])
 
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column' }}>
@@ -28,10 +41,22 @@ export const TaskParameters: React.FC<TaskParametersProps> = ( {} ) => {
       <Box>
         <Tabs sx={{ mt: 2 }} value={tabs.findIndex( item => item.key === activeTab.key ) || 0}>
           {tabs.map( item => (
-            <Tab label={item.title} onClick={() => setActiveTab( item )}/>
+            <Tab label={item.title} onClick={() => {
+              setActiveTab( item )
+            }}/>
           ) )}
         </Tabs>
+
+        <Switch>
+          <Route
+            exact={true}
+            path={match.path + '/work-types'}
+            render={() => <WorkTypeManagement/>}
+          />
+        </Switch>
       </Box>
     </Box>
   )
 }
+
+export default withRouter( TaskParameters )

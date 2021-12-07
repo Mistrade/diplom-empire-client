@@ -1,0 +1,5 @@
+mutation SaveWorkType($name: String){
+    saveWorkType(name: $name){
+        id, name, created
+    }
+}
