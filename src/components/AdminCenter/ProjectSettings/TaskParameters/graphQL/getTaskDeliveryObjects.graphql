@@ -1,0 +1,5 @@
+query GetTaskDeliveryObjects($parent: ID!){
+    taskDeliveryObjects(parent: $parent){
+        id, created, name
+    }
+}

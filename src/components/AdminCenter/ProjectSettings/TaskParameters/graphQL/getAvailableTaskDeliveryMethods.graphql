@@ -1,0 +1,10 @@
+query GetAvailableTaskDeliveryMethods($parent: ID!){
+    availableTaskDeliveryMethods(parent: $parent){
+        available{
+            id, name, created
+        },
+        alreadyExists{
+            id, name, created
+        }
+    }
+}

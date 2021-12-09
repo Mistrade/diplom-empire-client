@@ -25,8 +25,15 @@ export type AcademicSubjectInput = {
   title: Scalars['String'];
 };
 
+export type AvailableTaskDelivery = {
+  __typename?: 'AvailableTaskDelivery';
+  alreadyExists: Array<TaskDelivery>;
+  available: Array<TaskDelivery>;
+};
+
 export type Mutation = {
   __typename?: 'Mutation';
+  changeTaskDeliveriesForWorkTypes: Array<Maybe<TaskDelivery>>;
   createAcademicSubject: AcademicSubject;
   createNewSubSubject: SubSubject;
   createNewTask: Task;
@@ -35,6 +42,13 @@ export type Mutation = {
   editSubSubject?: Maybe<Result>;
   saveTaskDeliveryObject?: Maybe<Scalars['Boolean']>;
   saveWorkType: WorkType;
+};
+
+
+export type MutationChangeTaskDeliveriesForWorkTypesArgs = {
+  data: Array<Scalars['ID']>;
+  isDelete: Scalars['Boolean'];
+  parent: Scalars['ID'];
 };
 
 
@@ -83,6 +97,7 @@ export type Query = {
   __typename?: 'Query';
   academicSubject?: Maybe<AcademicSubject>;
   academicSubjects?: Maybe<Array<AcademicSubject>>;
+  availableTaskDeliveryMethods: AvailableTaskDelivery;
   getUserInfo?: Maybe<User>;
   subSubjects?: Maybe<Array<SubSubject>>;
   taskDeliveryObjects: Array<Maybe<TaskDelivery>>;
@@ -93,6 +108,11 @@ export type Query = {
 
 export type QueryAcademicSubjectArgs = {
   id: Scalars['ID'];
+};
+
+
+export type QueryAvailableTaskDeliveryMethodsArgs = {
+  parent: Scalars['ID'];
 };
 
 
@@ -107,7 +127,7 @@ export type QuerySubSubjectsArgs = {
 
 
 export type QueryTaskDeliveryObjectsArgs = {
-  parent?: InputMaybe<Array<InputMaybe<Scalars['ID']>>>;
+  parent: Scalars['ID'];
 };
 
 
@@ -152,7 +172,7 @@ export type TaskDelivery = {
   __typename?: 'TaskDelivery';
   created: Scalars['Float'];
   id: Scalars['ID'];
-  name?: Maybe<Scalars['String']>;
+  name: Scalars['String'];
 };
 
 export type TaskInput = {

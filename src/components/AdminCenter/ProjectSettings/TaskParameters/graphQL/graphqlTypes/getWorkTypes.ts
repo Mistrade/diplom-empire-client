@@ -6,7 +6,7 @@ const defaultOptions =  {}
 export type GetWorkTypesQueryVariables = Types.Exact<{ [key: string]: never; }>;
 
 
-export type GetWorkTypesQuery = { __typename?: 'Query', workTypes: Array<{ __typename?: 'WorkType', id: string, name: string, created: number, taskDelivery?: Array<{ __typename?: 'TaskDelivery', id: string, name?: string | null | undefined, created: number } | null | undefined> | null | undefined } | null | undefined> };
+export type GetWorkTypesQuery = { __typename?: 'Query', workTypes: Array<{ __typename?: 'WorkType', id: string, name: string, created: number, taskDelivery?: Array<{ __typename?: 'TaskDelivery', id: string, name: string, created: number } | null | undefined> | null | undefined } | null | undefined> };
 
 
 export const GetWorkTypesDocument = gql`

@@ -1,0 +1,5 @@
+mutation ChangeTaskDeliveriesForWorkTypes($parent: ID!, $data: [ID!]!, $isDelete: Boolean!){
+    changeTaskDeliveriesForWorkTypes(parent: $parent, data: $data, isDelete: $isDelete){
+        id, name, created
+    }
+}
