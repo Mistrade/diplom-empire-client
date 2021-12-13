@@ -76,7 +76,15 @@ export const RightBarList: React.FC<RightBarListProps> = ( {
 
 
     await withLoading( async ( changeMessage ) => {
-      await removeHandler( item, selected, setList, changeMessage )
+      try {
+        await removeHandler( item, selected, setList, changeMessage )
+        await setCandidateToRemoved( null )
+        await enqueueSnackbar( 'Успешно удалено!', { variant: 'success' } )
+      } catch (e) {
+        console.log( e )
+        await enqueueSnackbar( 'При удалении произошла непредвиденная ошибка!', { variant: 'error' } )
+        return null
+      }
     } )
   }
 

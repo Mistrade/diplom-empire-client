@@ -18,9 +18,9 @@ import {
   Input,
   InputLabel,
   MenuItem, Modal,
-  Select, Step, StepContent, StepIcon, StepLabel, Stepper, TextField, Typography
+  Select, Step, StepContent, StepIcon, StepLabel, Stepper, TextField, Tooltip, Typography
 } from '@mui/material'
-import { Add, AddCircle, CheckCircle, Close, UploadFile } from '@mui/icons-material'
+import { Add, AddCircle, CheckCircle, Close, HelpOutline, UploadFile } from '@mui/icons-material'
 import SelectInput from '@mui/material/Select/SelectInput'
 import { initialUser, TaskPage } from '../TaskPage/TaskPage'
 import { TaskHeaderForm } from './Steps/TaskHeader'
@@ -28,6 +28,8 @@ import { Container } from '../../Container/Container'
 import { TaskBodyForm } from './Steps/TaskBodyForm'
 import { MyStepper } from '../../Lists/MyStepper'
 import { FileMetaInformation } from '../../../common/uploadFileHandler'
+import { TaskAdditionalInfo } from './Steps/TaskAdditionalInfo'
+import { Press } from '../../Buttons/Press'
 
 export type UnboxedArray<T> = T extends Array<infer U> ? U : T
 
@@ -42,8 +44,14 @@ export interface FormState {
   subSubjects: null | SubSubjectsQuery['subSubjects'],
   details: string | null,
   payAttention: string | null,
-  resultFormat: null | string,
-  taskType: null | string,
+  taskDeliveryObject: null | {
+    id: string,
+    title: string
+  },
+  taskType: null | {
+    id: string,
+    title: string,
+  },
   toDate: {
     constructor: Date | null
     timestamp: any
@@ -60,7 +68,7 @@ export interface FileDataProps {
   }
 }
 
-export type CreateTaskSteps = 'task-header' | 'task-body' | 'task-additional'
+export type CreateTaskSteps = 'task-header' | 'task-body' | 'task-additional' | 'task-preview'
 
 export interface ModalConfigProps {
   isOpen: boolean,
@@ -73,12 +81,8 @@ const CreateNewTask: React.FC = () => {
     taskName: '',
     academicSubject: null,
     subSubjects: [],
-    resultFormat: null,
-    details: `Описание задания можно указать в текстовом формате, сохраняя переносы строк например вот так:
-
-А здесь уже будет располагаться следующий абзац.
-
-Тут стоит указать комментарии к выполнению задания, например: каждая задача из файла "Скриншот экрана" должна быть решена с помощью логарифмов и никак иначе!`,
+    taskDeliveryObject: null,
+    details: null,
     payAttention: null,
     taskType: null,
     toDate: {
@@ -123,11 +127,8 @@ const CreateNewTask: React.FC = () => {
       <Grid container spacing={4}>
         <Grid item xs={12} mb={2}>
           <Box sx={{}}>
-            <Typography variant={'h2'} fontSize={30} textAlign={'left'} mb={1}>
-              Приступим к публикации новой задачи?
-            </Typography>
-            <Typography variant={'subtitle1'} textAlign={'left'}>
-              Это займет не более 2 минут и его сразу увидят более 10000 экспертов на портале.
+            <Typography variant={'h2'} fontSize={24} textAlign={'left'} mb={1}>
+              Создайте новую задачу
             </Typography>
           </Box>
         </Grid>
@@ -151,41 +152,58 @@ const CreateNewTask: React.FC = () => {
               return (
                 <Step key={item.title}>
                   <StepLabel icon={<ListCustomIcon size={'large'}/>} sx={{ mt: -0.5 }}>
-                    <Typography variant={'subtitle1'}>
+                    <Box sx={{display: 'flex', alignItems: 'center', flexWrap: 'nowrap', justifyContent: 'center'}}>
+                    <Typography variant={'subtitle1'} sx={{mr: 1}}>
                       {item.title}
                     </Typography>
-                    <Typography variant={'subtitle2'}>
-                      {item.description}
-                    </Typography>
+                    <Tooltip title={item.description} arrow={true} placement={'bottom'}>
+                      <HelpOutline color={'primary'} sx={{cursor: 'pointer'}}/>
+                    </Tooltip>
+                    </Box>
                   </StepLabel>
                 </Step>
               )
             } )}
           </Stepper>
         </Grid>
-        <Grid item xs={4}
-              sx={{ transition: 'all .3s ease-in' }}>
-          <Container variant={'section'}>
-            {current.name === 'task-header' ? (
-              <TaskHeaderForm
-                formState={formState}
-                setFormState={setFormState}
-                setCurrent={setCurrent}
-                getCurrentIndex={getCurrentIndex}
-              />
-            ) : current.name === 'task-body' ? (
-              <TaskBodyForm
-                modal={modal}
-                setModal={setModal}
-                formState={formState}
-                setFormState={setFormState}
-                setCurrent={setCurrent}
-                getCurrentIndex={getCurrentIndex}
-              />
-            ) : <></>}
-          </Container>
-        </Grid>
-        <Grid item xs={8}>
+        {current.name !== 'task-preview' ? (
+          <Grid
+            item
+            xs={5}
+            sx={{ transition: 'all .3s ease-in', alignItems: 'center' }}
+          >
+            <Container
+              variant={'section'}
+            >
+              {current.name === 'task-header' ? (
+                <TaskHeaderForm
+                  formState={formState}
+                  setFormState={setFormState}
+                  setCurrent={setCurrent}
+                  getCurrentIndex={getCurrentIndex}
+                />
+              ) : current.name === 'task-body' ? (
+                <TaskBodyForm
+                  modal={modal}
+                  setModal={setModal}
+                  formState={formState}
+                  setFormState={setFormState}
+                  setCurrent={setCurrent}
+                  getCurrentIndex={getCurrentIndex}
+                />
+              ) : current.name === 'task-additional' ? (
+                <TaskAdditionalInfo
+                  state={formState}
+                  setState={setFormState}
+                  setCurrent={setCurrent}
+                  getCurrentIndex={getCurrentIndex}
+                />
+              ) : <></>}
+            </Container>
+          </Grid>
+        ) : <></>}
+        {current.name === 'task-preview' ? (
+          <Grid item={true} xs={8}>
             <TaskPage
               modal={modal}
               setModal={setModal}
@@ -194,7 +212,31 @@ const CreateNewTask: React.FC = () => {
               userInfo={initialUser}
               previewOptions={{ current, useHighlighter: true }}
             />
-        </Grid>
+            <FormControl sx={{ width: '100%', mt: 3 }}>
+              <ButtonGroup fullWidth={true}>
+                <Press color={'info'} type={'button'} onClick={() => setCurrent( {
+                  name: 'task-additional',
+                  index: getCurrentIndex( 'task-additional' )
+                } )}>
+                  Назад
+                </Press>
+                <Press
+                  color={'primary'}
+                  type={'button'}
+                  variant={'contained'}
+                  sx={{ whiteSpace: 'nowrap' }}
+                  onClick={() => setCurrent( {
+                    name: 'task-preview',
+                    index: getCurrentIndex( 'task-preview' )
+                  } )}
+                >
+                  Опубликовать задание
+                </Press>
+              </ButtonGroup>
+            </FormControl>
+          </Grid>
+        ) : <></>}
+
       </Grid>
       <Modal
         open={modal.isOpen}

@@ -14,7 +14,7 @@ import {
   Divider,
   FormControl,
   Grid,
-  List, ListItem, ListItemAvatar, ListItemButton, ListItemText, Tooltip,
+  List, ListItem, ListItemAvatar, ListItemButton, ListItemText, ListSubheader, Tooltip,
   Typography
 } from '@mui/material'
 import { Container } from '../../Container/Container'
@@ -92,61 +92,6 @@ export const TaskPage: React.FC<TaskPageProps> = ( {
     borderRadius: 12,
     background: 'rgba(220,220,220,.17)',
     ...defaultStyle
-  }
-
-  const FileItem: React.FC<{ item: FileDataProps }> = ( { item } ) => {
-    return (
-      <ListItem>
-        <Tooltip title={item.file.name} placement={'top'} arrow={true}>
-          <ListItemAvatar
-            sx={{
-              position: 'relative',
-              maxWidth: 60,
-              maxHeight: 60,
-              overflow: 'hidden',
-              border: item.data?.category === 'image' ? `1px solid ${theme.palette.divider}` : '',
-              mr: 2,
-              cursor: 'pointer',
-              display: 'flex',
-              justifyContent: 'center',
-              alignItems: 'center'
-            }}
-          >
-            {item.data?.category === 'image' ? (
-              <Tooltip
-                sx={{ fontSize: 20 }}
-                arrow={true}
-                placement={'top'}
-                title={'Нажмите для просмотра изображения'}
-              >
-                <img
-                  style={{ objectFit: 'contain', position: 'relative' }}
-                  width={'60px'}
-                  height={'60px'}
-                  onClick={() => {
-                    // setModal( {
-                    //   isOpen: true,
-                    //   imageContent: URL.createObjectURL( item )
-                    // } )
-                  }}
-                  src={URL.createObjectURL( item.file )}
-                />
-              </Tooltip>
-            ) : (
-              <FileImageAvatar ext={item.data?.semanticExt}/>
-            )}
-          </ListItemAvatar>
-        </Tooltip>
-        <ListItemText>
-          <Typography variant={'subtitle1'}>
-            {item.file.name.length > 24 ? item.file.name.substring( 0, 24 ) + '...' : item.file.name}
-          </Typography>
-          <Typography variant={'subtitle2'}>
-            {toMegaByte( item.file.size ).toFixed( 2 ) + ' МБайт'}
-          </Typography>
-        </ListItemText>
-      </ListItem>
-    )
   }
 
   return (
@@ -227,28 +172,30 @@ export const TaskPage: React.FC<TaskPageProps> = ( {
               <Typography variant={'h6'} fontSize={20} mb={1}>
                 Детали задания
               </Typography>
-              {data.details ? (
-                <>
-                  <Divider style={{ marginBottom: 16 }}/>
-                  <Typography variant={'subtitle2'} whiteSpace={'pre-wrap'}>
-                    {data.details}
-                  </Typography>
-                </>
-              ) : <></>}
+              <Divider style={{ marginBottom: 16 }}/>
+              <Typography variant={'subtitle2'} whiteSpace={'pre-wrap'}>
+                {data.details || <></>}
+              </Typography>
             </Grid>
             <Grid
-              item xs={5}
+              item
+              xs={5}
               style={{
                 border: `1px solid ${theme.palette.divider}`,
                 padding: 8,
+                paddingTop: 0,
                 borderRadius: 8,
-                height: 'fit-content'
+                height: 'fit-content',
+                maxHeight: 350,
+                overflowX: 'scroll'
               }}
             >
-              <Typography variant={'h6'} fontSize={16} textAlign={'center'}>
-                Прикрепленные файлы
-              </Typography>
-              <List>
+              <List sx={{ p: 0 }}>
+                <ListSubheader sx={{ p: 2 }}>
+                  <Typography variant={'h6'} fontSize={16} textAlign={'center'}>
+                    Прикрепленные файлы
+                  </Typography>
+                </ListSubheader>
                 {data.files?.length ? (
                   <>
                     {data.files.map( ( item, index ) => (
@@ -272,7 +219,17 @@ export const TaskPage: React.FC<TaskPageProps> = ( {
           </Grid>
         </Box>
         <Box style={state === 'task-additional' ? hoverStyle : defaultStyle}>
-          Дополнительная информация
+          <Typography variant={'h6'} fontSize={20} mb={1}>
+            Дополнительная информация
+          </Typography>
+          <Box>
+            <Typography variant={'subtitle1'} width={'100%'}>
+              <b>Тип работы</b>: {data.taskType?.title || 'Не выбрано'}, <b>
+              сдать работу необходимо в формате
+            </b>
+              : {data.taskDeliveryObject?.title || 'Фотография / скан / скриншот экрана'}
+            </Typography>
+          </Box>
         </Box>
       </Container>
     </>

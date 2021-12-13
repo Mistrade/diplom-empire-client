@@ -1,6 +1,6 @@
 import React, { ChangeEvent, ReactNode, useEffect, useState } from 'react'
 import {
-  Box,
+  Box, Button,
   Divider,
   List,
   ListItem,
@@ -20,9 +20,8 @@ export interface ManagementListProps<T = any> {
   leftBarConfig: LeftBarConfig,
   filterInputConfig?: InputFilterLeftBarProps,
   leftBarList: Array<LeftBarListItem<T>>,
-  rightBarListConfig: RightBarActions,
-  emptyRightBarComponent?: ReactNode | string,
   fullComponentIsLoad?: PreloaderProps,
+  rightList: ( selected: LeftBarListItem | null ) => ReactNode
 }
 
 export interface LeftBarListItem<T = any> {
@@ -95,7 +94,7 @@ export const ManagementList: React.FC<ManagementListProps> = ( props ) => {
 
   return (
     <Box
-      sx={{ height: '75vh', width: '100%' }}
+      sx={{ height: '55vh', width: '100%' }}
     >
       {props.fullComponentIsLoad?.status ? (
         <Preloader message={props.fullComponentIsLoad.message}/>
@@ -107,7 +106,7 @@ export const ManagementList: React.FC<ManagementListProps> = ( props ) => {
           direction={'row'}
           mt={2}
           p={1}
-          sx={{ height: '75vh' }}
+          sx={{ height: '55vh' }}
         >
           <Box sx={{ flex: '1 0 50%', overflow: 'scroll' }}>
             <List>
@@ -152,13 +151,7 @@ export const ManagementList: React.FC<ManagementListProps> = ( props ) => {
             </List>
           </Box>
           <Box sx={{ flex: '1 0 50%', overflow: 'scroll' }}>
-            {selected
-              ?
-              <RightBarList
-                selected={selected}
-                {...props.rightBarListConfig}
-              />
-              : props.emptyRightBarComponent || <></>}
+            {props.rightList( selected )}
           </Box>
         </Stack>
       )}

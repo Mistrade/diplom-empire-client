@@ -1,0 +1,3 @@
+mutation SaveTaskDeliveryObject($name: String!){
+    saveTaskDeliveryObject(name: $name)
+}

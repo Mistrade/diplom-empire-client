@@ -13,8 +13,12 @@ const client = new ApolloClient( {
 export const theme = createTheme( {
   palette: {
     primary: { main: '#06C0d7' },
-    secondary: { main: '#B983FF' },
-    success: { main: '#2eef7c' }
+    secondary: { main: '#DAD4EC' },
+    success: { main: '#C2E59C' },
+    background: {
+      default: '#FFF',
+      paper: '#FFF'
+    }
   }
 } )
 ReactDOM.render(

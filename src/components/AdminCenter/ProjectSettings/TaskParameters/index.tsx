@@ -17,9 +17,9 @@ export interface TabItemProps {
 const TaskParameters: React.FC<RouteComponentProps> = ( { match } ) => {
   const history = useHistory()
   const tabs: Array<TabItemProps> = [
-    { title: 'Варианты сдачи работы', key: 'type-to-delivery-task', path: 'work-types' },
+    { title: 'Создание задания', key: 'type-to-delivery-task', path: 'work-types' },
     {
-      title: 'В какой программе выполнять задание',
+      title: 'Модерация задания',
       key: 'how-to-complete-task',
       path: 'task-delivery'
     }
@@ -27,21 +27,21 @@ const TaskParameters: React.FC<RouteComponentProps> = ( { match } ) => {
 
   const [activeTab, setActiveTab] = useState<TabItemProps>( tabs[ 0 ] )
 
-  useEffect(() => {
-    history.push( match.path + '/' + activeTab.path)
-  }, [activeTab])
+  useEffect( () => {
+    history.push( match.path + '/' + activeTab.path )
+  }, [activeTab] )
 
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column' }}>
       <Box sx={{ width: '100%', display: 'flex' }}>
-        <Typography variant={'h1'} fontSize={30}>
+        <Typography variant={'h1'} fontSize={20}>
           Управление параметрами реализации заданий
         </Typography>
       </Box>
       <Box>
         <Tabs sx={{ mt: 2 }} value={tabs.findIndex( item => item.key === activeTab.key ) || 0}>
           {tabs.map( item => (
-            <Tab label={item.title} onClick={() => {
+            <Tab label={item.title} sx={{ fontSize: 12 }} onClick={() => {
               setActiveTab( item )
             }}/>
           ) )}
