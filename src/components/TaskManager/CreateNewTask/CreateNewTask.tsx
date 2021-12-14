@@ -13,14 +13,22 @@ import {
   Autocomplete,
   Box,
   Button,
-  ButtonGroup, Chip, Fade,
+  ButtonGroup, Card, Chip, Divider, Fade,
   FormControl, Grid, IconProps,
   Input,
   InputLabel,
   MenuItem, Modal,
-  Select, Step, StepContent, StepIcon, StepLabel, Stepper, TextField, Tooltip, Typography
+  Select, Stack, Step, StepContent, StepIcon, StepLabel, Stepper, TextField, Tooltip, Typography
 } from '@mui/material'
-import { Add, AddCircle, CheckCircle, Close, HelpOutline, UploadFile } from '@mui/icons-material'
+import {
+  Add,
+  AddCircle,
+  CheckCircle,
+  Close, DateRange,
+  HelpOutline,
+  HelpOutlineSharp, ListAltOutlined, Storage, TagSharp,
+  UploadFile
+} from '@mui/icons-material'
 import SelectInput from '@mui/material/Select/SelectInput'
 import { initialUser, TaskPage } from '../TaskPage/TaskPage'
 import { TaskHeaderForm } from './Steps/TaskHeader'
@@ -30,6 +38,8 @@ import { MyStepper } from '../../Lists/MyStepper'
 import { FileMetaInformation } from '../../../common/uploadFileHandler'
 import { TaskAdditionalInfo } from './Steps/TaskAdditionalInfo'
 import { Press } from '../../Buttons/Press'
+import { theme } from '../../../index'
+import { MyBox } from '../../MyBox'
 
 export type UnboxedArray<T> = T extends Array<infer U> ? U : T
 
@@ -108,7 +118,7 @@ const CreateNewTask: React.FC = () => {
 
   const stepsContent: Array<{ title: string, description: string, current: CreateTaskSteps }> = [
     {
-      title: 'Вводная информация по заданию',
+      title: 'Вводная информация',
       description: 'Содержит информацию о названии задания, предмете, тегах, сроке сдачи задания.',
       current: 'task-header'
     }, {
@@ -122,84 +132,193 @@ const CreateNewTask: React.FC = () => {
     }
   ]
 
+  const howIsList = [
+    {
+      title: 'Как указать название, на которое автор обратит внимание?',
+      content: '',
+      icon: <HelpOutlineSharp color={'info'} fontSize={'large'}/>,
+      key: 'task-title'
+    },
+    {
+      title: 'Какие теги выбирать к заданию, чтобы его увидели авторы?',
+      content: '',
+      icon: <TagSharp color={'info'} fontSize={'large'}/>,
+      key: 'task-tags'
+    },
+    {
+      title: 'Какой срок сдачи работы указать для задания?',
+      content: '',
+      icon: <DateRange color={'info'} fontSize={'large'}/>,
+      key: 'date-picker'
+    },
+    {
+      title: 'Как загрузить больше/тяжелые файлы?',
+      content: '',
+      icon: <Storage color={'info'} fontSize={'large'}/>,
+      key: 'how-to-upload-bigger-file'
+    },
+    {
+      title: 'Что указать в поле "Детали задания"?',
+      content: '',
+      icon: <ListAltOutlined color={'info'} fontSize={'large'}/>,
+      key: 'task-details'
+    }
+  ]
+
   return (
     <>
-      <Grid container spacing={4}>
-        <Grid item xs={12} mb={2}>
-          <Box sx={{}}>
-            <Typography variant={'h2'} fontSize={24} textAlign={'left'} mb={1}>
-              Создайте новую задачу
-            </Typography>
-          </Box>
-        </Grid>
-        <Grid item xs={12}>
-          <Stepper
-            sx={{ fontSize: 'white' }}
-            className={style.stepper}
-            orientation={'horizontal'} alternativeLabel
-            activeStep={steps.findIndex( ( item ) => item === current.name )}
-          >
-            {stepsContent.map( ( item, index ) => {
-              const ListCustomIcon: React.FC<{ size: IconProps['fontSize'] }> = ( { size } ) => {
-                if( index === current.index ) {
-                  return <AddCircle color={'secondary'} fontSize={size}/>
-                } else if( index < current.index ) {
-                  return <CheckCircle color={'success'} fontSize={size}/>
-                } else {
-                  return <AddCircle color={'disabled'} fontSize={size}/>
-                }
-              }
-              return (
-                <Step key={item.title}>
-                  <StepLabel icon={<ListCustomIcon size={'large'}/>} sx={{ mt: -0.5 }}>
-                    <Box sx={{display: 'flex', alignItems: 'center', flexWrap: 'nowrap', justifyContent: 'center'}}>
-                    <Typography variant={'subtitle1'} sx={{mr: 1}}>
-                      {item.title}
-                    </Typography>
-                    <Tooltip title={item.description} arrow={true} placement={'bottom'}>
-                      <HelpOutline color={'primary'} sx={{cursor: 'pointer'}}/>
-                    </Tooltip>
-                    </Box>
-                  </StepLabel>
-                </Step>
-              )
-            } )}
-          </Stepper>
-        </Grid>
+      <Grid container sx={{ transition: 'all .3s ease-in' }}>
         {current.name !== 'task-preview' ? (
           <Grid
             item
-            xs={5}
-            sx={{ transition: 'all .3s ease-in', alignItems: 'center' }}
+            xs={12}
+            sx={{ transition: 'all .3s ease-in', display: 'flex', justifyContent: 'center' }}
           >
-            <Container
-              variant={'section'}
+            <Box
+              component={'section'}
+              sx={{
+                width: '100%'
+                // boxShadow: `0px 2px 5px ${theme.palette.grey[ '500' ]}`,
+                // border: `1px solid ${theme.palette.divider}`,
+                // borderRadius: 4,
+                // p: 2.5,
+                // background: '#FFF'
+              }}
             >
-              {current.name === 'task-header' ? (
-                <TaskHeaderForm
-                  formState={formState}
-                  setFormState={setFormState}
-                  setCurrent={setCurrent}
-                  getCurrentIndex={getCurrentIndex}
-                />
-              ) : current.name === 'task-body' ? (
-                <TaskBodyForm
-                  modal={modal}
-                  setModal={setModal}
-                  formState={formState}
-                  setFormState={setFormState}
-                  setCurrent={setCurrent}
-                  getCurrentIndex={getCurrentIndex}
-                />
-              ) : current.name === 'task-additional' ? (
-                <TaskAdditionalInfo
-                  state={formState}
-                  setState={setFormState}
-                  setCurrent={setCurrent}
-                  getCurrentIndex={getCurrentIndex}
-                />
-              ) : <></>}
-            </Container>
+              <MyBox sx={{
+                p: 2,
+                borderRadius: 4,
+                boxShadow: `0px 3px 12px 3px ${theme.palette.divider}`
+              }}>
+                <Stepper
+                  sx={{ fontSize: 'white' }}
+                  className={style.stepper}
+                  orientation={'horizontal'} alternativeLabel
+                  activeStep={steps.findIndex( ( item ) => item === current.name )}
+                >
+                  {stepsContent.map( ( item, index ) => {
+                    const ListCustomIcon: React.FC<{ size: IconProps['fontSize'] }> = ( { size } ) => {
+                      if( index === current.index ) {
+                        return <AddCircle color={'secondary'} fontSize={size}/>
+                      } else if( index < current.index ) {
+                        return <CheckCircle color={'success'} fontSize={size}/>
+                      } else {
+                        return <AddCircle color={'disabled'} fontSize={size}/>
+                      }
+                    }
+                    return (
+                      <Step key={item.title}>
+                        <StepLabel icon={<ListCustomIcon size={'large'}/>} sx={{ mt: -0.5 }}>
+                          <Box sx={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            flexWrap: 'nowrap',
+                            justifyContent: 'center'
+                          }}>
+                            <Typography variant={'subtitle1'} sx={{ mr: 1 }}>
+                              {item.title}
+                            </Typography>
+                            <Tooltip title={item.description} arrow={true} placement={'bottom'}>
+                              <HelpOutline color={'primary'} sx={{ cursor: 'help' }}/>
+                            </Tooltip>
+                          </Box>
+                        </StepLabel>
+                      </Step>
+                    )
+                  } )}
+                </Stepper>
+              </MyBox>
+              <Grid container sx={{ mt: 0 }} rowSpacing={2} columnSpacing={4}>
+                <Grid item xs={6}>
+                  <MyBox sx={{
+                    p: 2,
+                    borderRadius: 4,
+                    boxShadow: `0px 3px 12px 3px ${theme.palette.divider}`,
+                    [ theme.breakpoints.up( 'md' ) ]: {
+                      // flex: '1 0 50%'
+                      // pr: 8
+                    }
+                  }}>
+                    {current.name === 'task-header' ? (
+                      <TaskHeaderForm
+                        formState={formState}
+                        setFormState={setFormState}
+                        setCurrent={setCurrent}
+                        getCurrentIndex={getCurrentIndex}
+                      />
+                    ) : current.name === 'task-body' ? (
+                      <TaskBodyForm
+                        modal={modal}
+                        setModal={setModal}
+                        formState={formState}
+                        setFormState={setFormState}
+                        setCurrent={setCurrent}
+                        getCurrentIndex={getCurrentIndex}
+                      />
+                    ) : current.name === 'task-additional' ? (
+                      <TaskAdditionalInfo
+                        state={formState}
+                        setState={setFormState}
+                        setCurrent={setCurrent}
+                        getCurrentIndex={getCurrentIndex}
+                      />
+                    ) : <></>}
+                  </MyBox>
+                </Grid>
+                <Grid item xs={6}>
+                  <MyBox sx={{
+                    p: 2,
+                    borderRadius: 4,
+                    boxShadow: `0px 3px 12px 3px ${theme.palette.divider}`,
+                    [ theme.breakpoints.up( 'md' ) ]: {
+                      // flex: '1 0 50%'
+                      // pl: 8
+                    }
+                  }}>
+                    <Typography variant={'h2'} fontSize={18} mb={3}>
+                      Вы можете повлиять на скорость выполнения работы, узнайте как:
+                    </Typography>
+                    <Grid container sx={{ alignItems: 'stretch' }} columnSpacing={2} rowSpacing={2}>
+                      {howIsList.map( item => (
+                        <Grid item xs={4}>
+                          <Card sx={{
+                            border: `1px solid ${theme.palette.info.main}`,
+                            borderRadius: 4,
+                            p: 1,
+                            height: '100%',
+                            cursor: 'pointer',
+                            transition: 'all .3s ease-out',
+                            '&:hover': {
+                              boxShadow: `0px 4px 17px 1px ${theme.palette.info.main}`
+                            }
+                          }}>
+                            <Box sx={{
+                              display: 'flex',
+                              flexDirection: 'column',
+                              alignItems: 'center',
+                              justifyContent: 'flex-start'
+                            }}>
+                              <Box sx={{ mb: 1 }}>
+                                {item.icon}
+                              </Box>
+                              <Box>
+                                <Typography
+                                  variant={'subtitle1'}
+                                  color={theme.palette.info.main}
+                                  textAlign={'center'}
+                                >
+                                  {item.title}
+                                </Typography>
+                              </Box>
+                            </Box>
+                          </Card>
+                        </Grid>
+                      ) )}
+                    </Grid>
+                  </MyBox>
+                </Grid>
+              </Grid>
+            </Box>
           </Grid>
         ) : <></>}
         {current.name === 'task-preview' ? (

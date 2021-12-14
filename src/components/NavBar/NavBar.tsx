@@ -15,6 +15,7 @@ import {
   Typography
 } from '@mui/material'
 import { Menu } from '@mui/icons-material'
+import { theme } from '../../index'
 
 export const NavBar: React.FC = () => {
   const [navPoints, setNavPoints] = useState<Array<NavItem>>( navBarData )
@@ -23,7 +24,9 @@ export const NavBar: React.FC = () => {
 
 
   return (
-    <nav className={`${style.navbar} ${state ? style.open : ''}`} style={{}}>
+    <nav className={`${style.navbar} ${state ? style.open : ''}`} style={{
+      backgroundColor: theme.palette.primary.main
+    }}>
       <List>
         <ListItem sx={{ padding: 0, mb: 1, cursor: 'pointer' }}>
           <ListItemAvatar sx={{ display: 'flex', justifyContent: 'center' }}>

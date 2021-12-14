@@ -2,12 +2,14 @@ import React, { useState } from 'react'
 import { Box, BoxProps, Container, Divider, Grid, styled, Typography } from '@mui/material'
 import { theme } from '../../../../../index'
 import { SubjectsConfig } from './SubjectsConfig'
+import { MyBox } from '../../../../MyBox'
 
 export const Wrapper = styled( Box )<BoxProps>( ( { theme } ) => ( {
   display: 'flex',
   borderRadius: 4,
   border: `1px solid ${theme.palette.divider}`,
-  padding: `12px 12px 12px 12px`
+  padding: `12px 12px 12px 12px`,
+  backgroundColor: theme.palette.background.default
 } ) )
 
 interface ConfigListItem {
@@ -32,7 +34,7 @@ export const CreateTaskConfig: React.FC = () => {
       >
         {configList.map( ( item, index ) => (
           <>
-            <Box
+            <MyBox
               sx={{
                 width: '100%',
                 mb: 1,
@@ -43,14 +45,15 @@ export const CreateTaskConfig: React.FC = () => {
                 display: 'flex',
                 justifyContent: 'center',
                 alignItems: 'center',
-                cursor: 'pointer'
+                cursor: 'pointer',
+                boxShadow: isActive?.title === item.title ? `0px 3px 12px 3px ${theme.palette.divider}` : undefined,
               }}
               onClick={() => setIsActive( item )}
             >
               <Typography variant={'subtitle1'}>
                 {item.title}
               </Typography>
-            </Box>
+            </MyBox>
             {index !== configList.length - 1 ? (
               <Box sx={{ width: '100%' }}>
                 <Divider sx={{ width: '50%', margin: '0 auto', mb: 1 }}/>
@@ -66,6 +69,7 @@ export const CreateTaskConfig: React.FC = () => {
               height: 600
             },
             overflow: 'hidden',
+            boxShadow: `0px 3px 12px 3px ${theme.palette.divider}`,
           }}
         >
           {isActive?.key === 'subjects' ? (

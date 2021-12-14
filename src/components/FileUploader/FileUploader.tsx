@@ -53,7 +53,7 @@ export const FileItemRender: React.FC<FileITemRenderProps> = ( {
 
   return (
     <>
-      <ListItem sx={{mb: 1, mt: 1}}>
+      <ListItem sx={{ mb: 1, mt: 1 }}>
         <ListItemAvatar
           sx={{
             position: 'relative',
@@ -200,7 +200,7 @@ export const FileUploader: React.FC<FileUploaderProps> = ( {
       }
     } )
 
-    return [...fileList, ...resultList]
+    return [...resultList, ...fileList]
   }
 
   const removeFileHandler = ( index: number ) => {
@@ -237,7 +237,6 @@ export const FileUploader: React.FC<FileUploaderProps> = ( {
           style={{ display: 'none' }}
         />
         <label htmlFor={'file-uploader'}>
-
           <Box className={style.fileUploader} sx={{
             border: fileList.length < maxFileCount ? '2px dashed rgba(70,70,70,.3)' : `2px solid ${theme.palette.primary.main}`,
             borderRadius: 2,
@@ -274,8 +273,11 @@ export const FileUploader: React.FC<FileUploaderProps> = ( {
           </Box>
         </label>
         {fileList.length ? (
-          <FormControl sx={{ mt: 3 }}>
-            <List>
+          <FormControl sx={{ mt: 3, overflow: 'hidden', maxHeight: '35vh', transition: 'all .3s ease-in' }}>
+            <Typography variant={'subtitle1'}>
+              Файлы, для закрепления к заданию: {fileList.length}
+            </Typography>
+            <List sx={{ overflow: 'scroll', overscrollBehavior: 'contain' }}>
               {fileList.map( ( file, index ) => {
                 return (
                   <FileItemRender

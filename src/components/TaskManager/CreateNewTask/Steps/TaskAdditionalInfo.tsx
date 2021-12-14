@@ -92,16 +92,12 @@ export const TaskAdditionalInfo: React.FC<TaskAdditionalInfoProps> = ( {
               sx={{
                 mb: 3,
                 p: 2,
-                borderRadius: 8,
-                border: `1px solid ${theme.palette.divider}`,
-                background: 'rgba(250, 250, 250, .95)'
+                borderRadius: 4,
+                border: `1px solid ${theme.palette.info.main}`
               }}>
-
-              <Typography variant={'h6'} sx={{ m: 0, mb: 1 }}>
-                На заметку...
-              </Typography>
               <Typography variant={'body2'}>
-                <strong>Способ получения решенного задания</strong> - это формат сдачи работы, в
+                <strong style={{ color: theme.palette.info.main }}>Способ получения решенного
+                  задания</strong> - это формат сдачи работы, в
                 котором исполнитель ОБЯЗАН предоставить вам решение задания.<br/>
                 Это поле не обязательно для заполнения и по умолчанию будет установлено
                 - фотография / скан / скриншот экрана.

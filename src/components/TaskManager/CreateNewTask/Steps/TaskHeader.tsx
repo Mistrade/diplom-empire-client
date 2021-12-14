@@ -68,7 +68,7 @@ export const TaskHeaderForm: React.FC<TaskHeaderProps> = ( {
 
   return (
     <form style={{ width: '100%' }}>
-      <Typography variant={'h3'} fontSize={18} textAlign={'center'}>
+      <Typography variant={'h3'} fontSize={18}>
         Укажите вводную информацию для задания
       </Typography>
       <Box
@@ -192,7 +192,7 @@ export const TaskHeaderForm: React.FC<TaskHeaderProps> = ( {
           )}
         </FormControl>
         <ButtonGroup fullWidth={true} sx={{ width: '100%' }}>
-          <Press variant="contained" color={'primary'} type={'button'} endIcon={<Send/>}
+          <Press variant="contained" color={'secondary'} type={'button'} endIcon={<Send/>}
                  onClick={() => setCurrent( {
                    name: 'task-body',
                    index: getCurrentIndex( 'task-body' )

@@ -6,6 +6,9 @@ export const Press = styled( Button )<ButtonProps>( ( { theme } ) => ( {
     '&.MuiButton-containedPrimary': {
       color: 'white'
     },
+    '&.MuiButton-containedSecondary': {
+      color: '#FFF'
+    },
     // '&.MuiButton-containedSecondary': {
     //   backgroundColor: colors.primary
     // },
@@ -13,7 +16,7 @@ export const Press = styled( Button )<ButtonProps>( ( { theme } ) => ( {
       '&.MuiButton-outlinedInfo': {
         borderColor: colors.info,
         color: colors.info,
-        '&:hover':{
+        '&:hover': {
           backgroundColor: 'rgba(245,245,245,.9)'
         }
       }

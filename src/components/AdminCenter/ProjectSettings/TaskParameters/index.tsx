@@ -3,6 +3,8 @@ import { Box, Tab, Tabs, Typography } from '@mui/material'
 import { WorkTypeManagement } from './WorkTypeManagement'
 import { Route, RouteComponentProps, Switch, useHistory, withRouter } from 'react-router-dom'
 import { Task } from '@mui/icons-material'
+import { MyBox } from '../../../MyBox'
+import { theme } from '../../../../index'
 
 interface TaskParametersProps {
 
@@ -39,13 +41,22 @@ const TaskParameters: React.FC<RouteComponentProps> = ( { match } ) => {
         </Typography>
       </Box>
       <Box>
-        <Tabs sx={{ mt: 2 }} value={tabs.findIndex( item => item.key === activeTab.key ) || 0}>
-          {tabs.map( item => (
-            <Tab label={item.title} sx={{ fontSize: 12 }} onClick={() => {
-              setActiveTab( item )
-            }}/>
-          ) )}
-        </Tabs>
+        <MyBox sx={{
+          p: 1.5,
+          mt: 1,
+          borderRadius: 2,
+          border: `1px solid ${theme.palette.divider}`,
+          boxShadow: `0px 3px 12px 3px ${theme.palette.divider}`,
+        }}>
+
+          <Tabs sx={{ mt: 0 }} value={tabs.findIndex( item => item.key === activeTab.key ) || 0}>
+            {tabs.map( item => (
+              <Tab label={item.title} sx={{ fontSize: 12 }} onClick={() => {
+                setActiveTab( item )
+              }}/>
+            ) )}
+          </Tabs>
+        </MyBox>
 
         <Switch>
           <Route
