@@ -33,6 +33,7 @@ export type AvailableTaskDelivery = {
 
 export type Mutation = {
   __typename?: 'Mutation';
+  changeSubject?: Maybe<AcademicSubject>;
   changeTaskDeliveriesForWorkTypes: Array<Maybe<TaskDelivery>>;
   createAcademicSubject: AcademicSubject;
   createNewSubSubject: SubSubject;
@@ -42,6 +43,12 @@ export type Mutation = {
   editSubSubject?: Maybe<Result>;
   saveTaskDeliveryObject?: Maybe<Scalars['Boolean']>;
   saveWorkType: WorkType;
+};
+
+
+export type MutationChangeSubjectArgs = {
+  id: Scalars['ID'];
+  title: Scalars['String'];
 };
 
 

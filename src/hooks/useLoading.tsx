@@ -1,15 +1,17 @@
 import React, { useEffect, useState } from 'react'
 
 export interface PreloaderProps {
+  items: Array<string>,
   status: boolean,
   message: string
 }
 
 export type SetLoadingMessage = ( message: string ) => Promise<void>
-export type WithLoadingType = ( callback: ( changeMessage: ( message: string ) => Promise<void> ) => any, message?: string ) => Promise<void>
+export type WithLoadingType = ( callback: ( changeMessage: ( message: string ) => Promise<void> ) => any, message?: string, item?: string ) => Promise<void>
 export const useLoading = ( initialState?: boolean, initialMessage?: string ) => {
   const defaultMessage = initialMessage || 'Загрузка данных'
   const [loading, setLoading] = useState<PreloaderProps>( {
+    items: [],
     status: initialState || false,
     message: defaultMessage
   } )
@@ -21,25 +23,32 @@ export const useLoading = ( initialState?: boolean, initialMessage?: string ) =>
     } ) )
   }
 
-  useEffect( () => {
-    console.log( loading )
-  }, [loading] )
-
-
-  const withLoading: WithLoadingType  = async ( callback, message ) => {
+  const withLoading: WithLoadingType = async ( callback, message, item ) => {
     try {
-      await setLoading( {
-        status: true,
-        message: message || defaultMessage
+      await setLoading( prev => {
+        const items = prev.items
+
+        if( item ) {
+          items.push( item )
+        }
+        return {
+          status: true,
+          message: message || defaultMessage,
+          items
+        }
       } )
       await callback( changeMessage )
     } catch (e) {
       console.log( e )
       return
     } finally {
-      await setLoading( {
-        status: false,
-        message: ''
+      await setLoading( prev => {
+        const items = prev.items.filter( existItem => existItem !== item )
+        return {
+          status: false,
+          message: '',
+          items
+        }
       } )
     }
   }

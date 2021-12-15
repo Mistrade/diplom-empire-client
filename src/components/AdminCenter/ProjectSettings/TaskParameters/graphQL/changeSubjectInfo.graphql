@@ -1,0 +1,5 @@
+mutation ChangeSubjectInfo($id: ID!, $title: String!){
+    changeSubject(id: $id, title: $title){
+        id, title
+    }
+}

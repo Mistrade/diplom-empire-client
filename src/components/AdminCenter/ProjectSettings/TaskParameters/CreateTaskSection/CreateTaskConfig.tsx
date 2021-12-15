@@ -8,7 +8,7 @@ export const Wrapper = styled( Box )<BoxProps>( ( { theme } ) => ( {
   display: 'flex',
   borderRadius: 4,
   border: `1px solid ${theme.palette.divider}`,
-  padding: `12px 12px 12px 12px`,
+  padding: `12px 24px 24px 24px`,
   backgroundColor: theme.palette.background.default
 } ) )
 
