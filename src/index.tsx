@@ -5,6 +5,7 @@ import { ApolloClient, ApolloProvider, InMemoryCache } from '@apollo/client'
 import './index.sass'
 import { BrowserRouter } from 'react-router-dom'
 import { createTheme, ThemeProvider } from '@mui/material'
+import { divider } from './common/styles'
 
 const client = new ApolloClient( {
   uri: 'http://localhost:9099/graphql',
@@ -12,6 +13,7 @@ const client = new ApolloClient( {
 } )
 export const theme = createTheme( {
   palette: {
+    divider: divider,
     primary: { main: '#07A3BE' },
     secondary: { main: '#A4556F' },
     success: { main: '#99D0EC' },
@@ -19,8 +21,8 @@ export const theme = createTheme( {
     background: {
       default: '#FFF',
       paper: '#FFF'
-    },
-  },
+    }
+  }
 } )
 ReactDOM.render(
   <React.StrictMode>

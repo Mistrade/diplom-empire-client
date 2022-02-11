@@ -5,6 +5,7 @@ import { Route, RouteComponentProps, Switch, useHistory, withRouter } from 'reac
 import { Task } from '@mui/icons-material'
 import { MyBox } from '../../../MyBox'
 import { theme } from '../../../../index'
+import { gs } from '../../../../common/styles'
 
 interface TaskParametersProps {
 
@@ -45,8 +46,8 @@ const TaskParameters: React.FC<RouteComponentProps> = ( { match } ) => {
           p: 1.5,
           mt: 1,
           borderRadius: 2,
-          border: `1px solid ${theme.palette.divider}`,
-          boxShadow: `0px 3px 12px 3px ${theme.palette.divider}`,
+          // border: `1px solid ${theme.palette.divider}`,
+          boxShadow: gs.boxShadow.main,
         }}>
 
           <Tabs sx={{ mt: 0 }} value={tabs.findIndex( item => item.key === activeTab.key ) || 0}>

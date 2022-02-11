@@ -134,7 +134,7 @@ export type QuerySubSubjectsArgs = {
 
 
 export type QueryTaskDeliveryObjectsArgs = {
-  parent: Scalars['ID'];
+  parent?: InputMaybe<Scalars['ID']>;
 };
 
 

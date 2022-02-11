@@ -4,7 +4,7 @@ import { gql } from '@apollo/client';
 import * as Apollo from '@apollo/client';
 const defaultOptions =  {}
 export type GetTaskDeliveryObjectsQueryVariables = Types.Exact<{
-  parent: Types.Scalars['ID'];
+  parent?: Types.InputMaybe<Types.Scalars['ID']>;
 }>;
 
 
@@ -12,7 +12,7 @@ export type GetTaskDeliveryObjectsQuery = { __typename?: 'Query', taskDeliveryOb
 
 
 export const GetTaskDeliveryObjectsDocument = gql`
-    query GetTaskDeliveryObjects($parent: ID!) {
+    query GetTaskDeliveryObjects($parent: ID) {
   taskDeliveryObjects(parent: $parent) {
     id
     created
@@ -37,7 +37,7 @@ export const GetTaskDeliveryObjectsDocument = gql`
  *   },
  * });
  */
-export function useGetTaskDeliveryObjectsQuery(baseOptions: Apollo.QueryHookOptions<GetTaskDeliveryObjectsQuery, GetTaskDeliveryObjectsQueryVariables>) {
+export function useGetTaskDeliveryObjectsQuery(baseOptions?: Apollo.QueryHookOptions<GetTaskDeliveryObjectsQuery, GetTaskDeliveryObjectsQueryVariables>) {
         const options = {...defaultOptions, ...baseOptions}
         return Apollo.useQuery<GetTaskDeliveryObjectsQuery, GetTaskDeliveryObjectsQueryVariables>(GetTaskDeliveryObjectsDocument, options);
       }

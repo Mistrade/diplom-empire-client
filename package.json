@@ -67,6 +67,7 @@
     "@graphql-codegen/typescript-graphql-files-modules": "2.1.0",
     "@graphql-codegen/typescript-operations": "^2.2.1",
     "@graphql-codegen/typescript-react-apollo": "^3.2.2",
-    "@types/react-router-dom": "^5.3.2"
+    "@types/react-router-dom": "^5.3.2",
+    "@types/styled-components": "^5.1.19"
   }
 }
